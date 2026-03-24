@@ -1,1026 +1,1991 @@
+
 <!DOCTYPE html>
-<html lang="es" data-theme="dark">
+<html lang="es">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Stock Laboratorio | Frutos Tropicales</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
-<style>
-/* ═══ VARIABLES ═══ */
-:root{
-  --bg:#06081A;--card:rgba(255,255,255,.043);--cb:rgba(255,255,255,.09);
-  --t:#E2E8F0;--tm:#94A3B8;--ts:#4B5563;--tshadow:rgba(6,8,26,.96);
-  --und:#00D4FF;--kg:#C084FC;--lt:#FB923C;
-  --ok:#22C55E;--mod:#F59E0B;--low:#FBBC04;--crit:#EF4444;
-  --card-shadow:none;
-}
-[data-theme="light"]{
-  --bg:#EEF2F7;--card:rgba(255,255,255,.88);--cb:rgba(0,0,0,.1);
-  --t:#1E293B;--tm:#475569;--ts:#94A3B8;--tshadow:rgba(248,250,252,.98);
-  --card-shadow:0 2px 10px rgba(0,0,0,.08);
-}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Formatos de Temperaturas — Frutos Tropicales</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
-/* ═══ RESET ═══ */
-*{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{
-  font-family:'Segoe UI',system-ui,sans-serif;
-  background:var(--bg);color:var(--t);
-  overflow-x:hidden;min-height:100vh;
-  transition:background .3s,color .3s;
-}
-body::before{
-  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
-  background:
-    radial-gradient(ellipse 60% 40% at 5% 20%,  rgba(0,212,255,.07) 0%,transparent 55%),
-    radial-gradient(ellipse 45% 50% at 95% 75%, rgba(192,132,252,.07) 0%,transparent 55%),
-    radial-gradient(ellipse 35% 35% at 50% 5%,  rgba(251,146,60,.05) 0%,transparent 45%);
-  transition:opacity .3s;
-}
-[data-theme="light"] body::before{
-  background:
-    radial-gradient(ellipse 60% 40% at 5% 20%,  rgba(59,130,246,.05) 0%,transparent 55%),
-    radial-gradient(ellipse 45% 50% at 95% 75%, rgba(139,92,246,.04) 0%,transparent 55%),
-    radial-gradient(ellipse 35% 35% at 50% 5%,  rgba(249,115,22,.03) 0%,transparent 45%);
-}
-.wrap{max-width:1500px;margin:0 auto;padding:20px;position:relative;z-index:1}
+    :root {
+      --bg: #0d1117;
+      --bg-card: #161b22;
+      --bg-card-hover: #1c2333;
+      --text: #e6edf3;
+      --text-muted: #8b949e;
+      --border: #30363d;
+      --accent: #0d9488;
+      --accent-light: #14b8a6;
+      --accent-dark: #0f766e;
+      --red: #8b1a1a;
+      --red-hover: #6b1212;
+      --green: #1a5c25;
+      --green-hover: #0d3d15;
+    }
 
-/* ═══ HEADER ═══ */
-header{
-  display:flex;justify-content:space-between;align-items:center;
-  padding-bottom:18px;margin-bottom:18px;border-bottom:1px solid var(--cb);
-  gap:12px;flex-wrap:wrap;
-}
-.hlogo{display:flex;align-items:center;gap:12px}
-.hicon{
-  width:42px;height:42px;border-radius:11px;flex-shrink:0;
-  background:linear-gradient(135deg,#00D4FF,#0080FF);
-  display:grid;place-items:center;font-size:20px;
-  box-shadow:0 0 18px rgba(0,212,255,.35);
-}
-h1{
-  font-size:20px;font-weight:800;
-  background:linear-gradient(135deg,#fff 30%,#94A3B8);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-}
-[data-theme="light"] h1{
-  background:linear-gradient(135deg,#1E293B 30%,#64748B);
-  -webkit-background-clip:text;background-clip:text;
-}
-.hsubt{font-size:11px;color:var(--tm);margin-top:2px}
-.hright{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
-.hdate{
-  background:rgba(255,255,255,.06);border:1px solid var(--cb);
-  border-radius:8px;padding:5px 11px;font-size:11px;color:var(--tm);
-  white-space:nowrap;
-}
-[data-theme="light"] .hdate{background:rgba(0,0,0,.05)}
+    body.light-mode {
+      --bg: #f0f4f8;
+      --bg-card: #ffffff;
+      --bg-card-hover: #f8fafc;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+    }
 
-/* ─── THEME TOGGLE ─── */
-.theme-btn{
-  display:flex;align-items:center;gap:6px;
-  padding:7px 13px;border-radius:10px;cursor:pointer;
-  background:rgba(255,255,255,.06);border:1px solid var(--cb);
-  color:var(--tm);font-size:12px;font-weight:600;
-  transition:all .2s;user-select:none;white-space:nowrap;
-}
-.theme-btn:hover{background:rgba(255,255,255,.12);color:var(--t)}
-[data-theme="light"] .theme-btn{background:rgba(0,0,0,.05)}
-[data-theme="light"] .theme-btn:hover{background:rgba(0,0,0,.1);color:var(--t)}
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
-/* ═══ KPIs ═══ */
-.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:18px}
-.kpi{
-  background:var(--card);border:1px solid var(--cb);border-radius:14px;
-  padding:16px 14px;position:relative;overflow:hidden;
-  transition:transform .2s,box-shadow .2s;cursor:default;
-  box-shadow:var(--card-shadow);
-}
-.kpi:hover{transform:translateY(-3px);box-shadow:0 14px 30px rgba(0,0,0,.3)}
-.kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:14px 14px 0 0}
-.kpi.c1::after{background:linear-gradient(90deg,#00D4FF,#0080FF)}
-.kpi.c2::after{background:linear-gradient(90deg,#EF4444,#FF6B6B)}
-.kpi.c3::after{background:linear-gradient(90deg,#FBBC04,#F59E0B)}
-.kpi.c4::after{background:linear-gradient(90deg,#22C55E,#16A34A)}
-.kpi.c5::after{background:linear-gradient(90deg,#C084FC,#9333EA)}
-.kpi-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.1px;color:var(--tm);margin-bottom:7px}
-.kpi-val{font-size:30px;font-weight:900;line-height:1}
-.kpi.c1 .kpi-val{color:#00D4FF}.kpi.c2 .kpi-val{color:#EF4444}
-.kpi.c3 .kpi-val{color:#FBBC04}.kpi.c4 .kpi-val{color:#22C55E}.kpi.c5 .kpi-val{color:#C084FC}
-.kpi-sub{font-size:10.5px;color:var(--tm);margin-top:6px;padding-top:6px;border-top:1px solid var(--cb)}
+    @keyframes floatLogo {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
 
-/* ═══ LAYOUT ═══ */
-.hero-row{display:grid;grid-template-columns:1fr 320px;gap:16px;margin-bottom:16px;align-items:start}
-.bot-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
-.card{
-  background:var(--card);border:1px solid var(--cb);border-radius:14px;
-  padding:18px;box-shadow:var(--card-shadow);
-  transition:background .3s,border-color .3s;
-}
-.ch{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;gap:8px;flex-wrap:wrap}
-.ct{font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.csub{font-size:11px;color:var(--tm);margin-bottom:12px}
-.badge{font-size:10px;font-weight:800;padding:2px 7px;border-radius:5px;text-transform:uppercase;letter-spacing:.3px}
-.b0{background:rgba(255,255,255,.07);color:var(--tm)}
-[data-theme="light"] .b0{background:rgba(0,0,0,.07)}
-.b1{background:rgba(0,212,255,.12);color:#00D4FF}
-.b4{background:rgba(34,197,94,.12);color:#22C55E}
+    @keyframes shimmer {
+      0% { background-position: -200% center; }
+      100% { background-position: 200% center; }
+    }
 
-/* ─── SEMÁFORO LEGEND ─── */
-.semafor-legend{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}
-.sl{display:flex;align-items:center;gap:4px;font-size:10.5px;color:var(--tm)}
-.sl-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
 
-/* ─── TABS ─── */
-.utabs{display:flex;gap:5px;flex-wrap:wrap}
-.utab{
-  padding:5px 12px;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;
-  border:1px solid var(--cb);background:transparent;color:var(--tm);
-  transition:all .2s;user-select:none;
-}
-.utab.active[data-u="UND"],.utab.active[data-su="UND"]{color:var(--und);border-color:rgba(0,212,255,.4);background:rgba(0,212,255,.08)}
-.utab.active[data-u="KG"],.utab.active[data-su="KG"]{color:var(--kg);border-color:rgba(192,132,252,.4);background:rgba(192,132,252,.08)}
-.utab.active[data-u="LT"],.utab.active[data-su="LT"]{color:var(--lt);border-color:rgba(251,146,60,.4);background:rgba(251,146,60,.08)}
-.utab.active[data-u="all"]{color:var(--t);border-color:rgba(255,255,255,.25);background:rgba(255,255,255,.08)}
-[data-theme="light"] .utab.active[data-u="all"]{border-color:rgba(0,0,0,.2);background:rgba(0,0,0,.07)}
+    /* ══════════════ SCREEN STYLES ══════════════ */
+    @media screen {
+      body {
+        font-family: 'Inter', Arial, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        padding: 0;
+        margin: 0;
+        transition: background 0.3s, color 0.3s;
+      }
 
-/* ─── MONTH PILLS (en gráfico consumo) ─── */
-.mpills-row{
-  display:flex;align-items:center;gap:8px;
-  flex-wrap:wrap;margin-bottom:10px;
-  padding:10px 12px;border-radius:10px;
-  background:rgba(255,255,255,.03);border:1px solid var(--cb);
-}
-[data-theme="light"] .mpills-row{background:rgba(0,0,0,.03)}
-.mp-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ts);white-space:nowrap}
-.mpill{
-  padding:5px 13px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;
-  border:2px solid transparent;transition:all .2s;user-select:none;
-  opacity:.35;min-height:32px;display:flex;align-items:center;
-}
-.mpill.on{opacity:1;transform:scale(1.06)}
-.mpill[data-m="all"]{background:rgba(255,255,255,.08);color:var(--tm)}
-.mpill[data-m="all"].on{border-color:rgba(255,255,255,.35);background:rgba(255,255,255,.14);color:var(--t)}
-[data-theme="light"] .mpill[data-m="all"]{background:rgba(0,0,0,.05)}
-[data-theme="light"] .mpill[data-m="all"].on{border-color:rgba(0,0,0,.2);background:rgba(0,0,0,.09);color:var(--t)}
-.mpill[data-m="dic"]{background:rgba(129,140,248,.15);color:#818CF8}
-.mpill[data-m="dic"].on{border-color:rgba(129,140,248,.6);background:rgba(129,140,248,.2)}
-.mpill[data-m="ene"]{background:rgba(0,212,255,.15);color:#00D4FF}
-.mpill[data-m="ene"].on{border-color:rgba(0,212,255,.6);background:rgba(0,212,255,.2)}
-.mpill[data-m="feb"]{background:rgba(244,114,182,.15);color:#F472B6}
-.mpill[data-m="feb"].on{border-color:rgba(244,114,182,.6);background:rgba(244,114,182,.2)}
-.mpill[data-m="mar"]{background:rgba(52,211,153,.15);color:#34D399}
-.mpill[data-m="mar"].on{border-color:rgba(52,211,153,.6);background:rgba(52,211,153,.2)}
+      /* ── PAGE HEADER ── */
+      .page-header {
+        max-width: 240mm;
+        margin: 0 auto;
+        padding: 20px 24px 12px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 16px;
+        animation: fadeIn 0.5s ease;
+      }
 
-/* ─── CHART SCROLL (mobile) ─── */
-.chart-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px}
-.chart-scroll::-webkit-scrollbar{height:4px}
-.chart-scroll::-webkit-scrollbar-track{background:transparent}
-.chart-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:2px}
-.csi{position:relative}/* chart scroll inner — width set by JS */
+      .page-header-left {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+      }
 
-/* ─── DETAIL PANEL ─── */
-.dp{height:100%;display:flex;flex-direction:column;min-height:420px}
-.dp-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--ts)}
-.dp-empty .ei{font-size:36px;opacity:.3}
-.dp-empty p{font-size:12px;text-align:center;max-width:185px;line-height:1.6;color:var(--tm)}
-.dpc{display:none;flex-direction:column;gap:11px;height:100%}
-.dphead{display:flex;align-items:flex-start;gap:10px}
-.dpicon{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;font-size:18px;flex-shrink:0;border:1px solid}
-.dpname{font-size:13px;font-weight:700;line-height:1.3}
-.dpcat{font-size:11px;color:var(--tm);margin-top:2px}
-.dp-metrics{display:grid;grid-template-columns:1fr 1fr;gap:7px}
-.dpm{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:9px;padding:9px 11px}
-[data-theme="light"] .dpm{background:rgba(0,0,0,.04);border-color:rgba(0,0,0,.08)}
-.dpm-l{font-size:9.5px;color:var(--tm);text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px}
-.dpm-v{font-size:20px;font-weight:900}
-.dp-status{padding:9px 13px;border-radius:9px;font-size:12px;font-weight:700;display:flex;align-items:center;gap:7px}
-.dps-crit{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);color:#EF4444}
-.dps-low{background:rgba(251,188,4,.1);border:1px solid rgba(251,188,4,.2);color:#FBBC04}
-.dps-mod{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2);color:#F59E0B}
-.dps-ok{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);color:#22C55E}
-.dp-bar-track{height:7px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden}
-[data-theme="light"] .dp-bar-track{background:rgba(0,0,0,.1)}
-.dp-bar-fill{height:100%;border-radius:4px;transition:width .6s ease}
-.closebtn{
-  background:rgba(255,255,255,.07);border:1px solid var(--cb);
-  border-radius:7px;padding:3px 8px;font-size:11px;color:var(--tm);
-  cursor:pointer;margin-left:auto;flex-shrink:0;transition:.15s;
-}
-.closebtn:hover{background:rgba(255,255,255,.13);color:var(--t)}
-[data-theme="light"] .closebtn{background:rgba(0,0,0,.05)}
+      .page-header-left img {
+        height: 75px;
+        width: auto;
+        animation: floatLogo 3s ease-in-out infinite;
+        filter: drop-shadow(0 4px 12px rgba(13,148,136,0.3));
+      }
 
-/* ═══ TABLE ═══ */
-.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
-.tw::-webkit-scrollbar{height:4px}
-.tw::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:2px}
-table{width:100%;border-collapse:collapse;min-width:680px}
-thead th{
-  font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;
-  color:var(--tm);padding:9px 10px;border-bottom:1px solid var(--cb);
-  text-align:left;white-space:nowrap;cursor:pointer;user-select:none;
-}
-thead th:hover{color:var(--t)}
-thead th.sa::after{content:' ▲'}thead th.sd::after{content:' ▼'}
-tbody td{padding:8px 10px;font-size:12px;border-bottom:1px solid var(--cb);border-bottom-width:.5px}
-tbody tr{cursor:pointer;transition:background .15s}
-tbody tr:hover td{background:rgba(255,255,255,.04)}
-[data-theme="light"] tbody tr:hover td{background:rgba(0,0,0,.03)}
-tbody tr.sel td{background:rgba(255,255,255,.07)}
-[data-theme="light"] tbody tr.sel td{background:rgba(0,0,0,.06)}
-.utag{display:inline-block;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:800}
-.u-und{background:rgba(0,212,255,.1);color:var(--und)}
-.u-kg{background:rgba(192,132,252,.1);color:var(--kg)}
-.u-lt{background:rgba(251,146,60,.1);color:var(--lt)}
-.stag{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700}
-.sdot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
-.s-ok{color:#22C55E}.s-ok .sdot{background:#22C55E}
-.s-mod{color:#F59E0B}.s-mod .sdot{background:#F59E0B}
-.s-low{color:#FBBC04}.s-low .sdot{background:#FBBC04}
-.s-crit{color:#EF4444}.s-crit .sdot{background:#EF4444;box-shadow:0 0 6px rgba(239,68,68,.8);animation:blink 1.3s infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.15}}
-.dbar{display:flex;align-items:center;gap:4px}
-.dtrack{width:55px;height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;display:inline-block}
-[data-theme="light"] .dtrack{background:rgba(0,0,0,.1)}
-.dfill{height:100%;border-radius:2px}
+      .btn-portal {
+        display: inline-block;
+        padding: 6px 14px;
+        font-size: 11px;
+        font-weight: 700;
+        color: #fff;
+        background: linear-gradient(135deg, #0d9488, #14b8a6);
+        border: none;
+        border-radius: 20px;
+        cursor: pointer;
+        text-decoration: none;
+        letter-spacing: 0.3px;
+        transition: transform 0.2s, box-shadow 0.2s;
+        box-shadow: 0 2px 8px rgba(13,148,136,0.3);
+      }
+      .btn-portal:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 14px rgba(13,148,136,0.4);
+      }
 
-/* ═══ CONTROLS ═══ */
-.ctrl-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
-.lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ts)}
-.tbtn{
-  padding:6px 11px;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;
-  border:1px solid var(--cb);background:transparent;color:var(--tm);
-  transition:all .2s;user-select:none;min-height:30px;
-}
-.tbtn.on{color:#FBBF24;border-color:rgba(251,191,36,.4);background:rgba(251,191,36,.08)}
-.divider{width:1px;height:22px;background:var(--cb);flex-shrink:0}
-.chart-btn-row{display:flex;gap:6px}
+      .page-header-center {
+        text-align: center;
+        flex: 1;
+        min-width: 200px;
+      }
 
-/* ═══ ANIMATION ═══ */
-@keyframes fIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
-.kpi{opacity:0;animation:fIn .4s ease forwards}
-.kpi:nth-child(1){animation-delay:.05s}.kpi:nth-child(2){animation-delay:.10s}
-.kpi:nth-child(3){animation-delay:.15s}.kpi:nth-child(4){animation-delay:.20s}.kpi:nth-child(5){animation-delay:.25s}
-.hero-row,.bot-row{opacity:0;animation:fIn .5s ease forwards;animation-delay:.3s}
-.card-tbl{opacity:0;animation:fIn .5s ease forwards;animation-delay:.4s}
+      .page-header-center h1 {
+        font-size: 28px;
+        font-weight: 900;
+        color: var(--accent);
+        letter-spacing: -0.5px;
+        margin-bottom: 6px;
+      }
 
-/* ═══ RESPONSIVE ═══ */
-@media(max-width:1100px){
-  .hero-row{grid-template-columns:1fr}
-  .bot-row{grid-template-columns:1fr}
-}
-@media(max-width:768px){
-  .wrap{padding:12px}
-  .kpi-row{grid-template-columns:repeat(3,1fr);gap:8px}
-  .kpi-val{font-size:24px}
-  .kpi-sub{display:none}
-  h1{font-size:17px}
-  .hsubt{display:none}
-  header{gap:8px}
-}
-@media(max-width:480px){
-  .kpi-row{grid-template-columns:1fr 1fr;gap:8px}
-  h1{font-size:15px}
-  .hdate{display:none}
-  .theme-btn span.theme-text{display:none}
-  .mpill{font-size:11px;padding:5px 10px}
-  .tbtn,.utab{padding:6px 9px;font-size:10.5px}
-}
-</style>
+      .page-header-badge {
+        display: inline-block;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--accent);
+        border: 1.5px solid var(--accent);
+        border-radius: 20px;
+        padding: 3px 16px;
+        letter-spacing: 0.5px;
+      }
+
+      .page-header-right {
+        text-align: right;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 8px;
+      }
+
+      .sig-block {
+        text-align: right;
+      }
+
+      .sig-label {
+        font-size: 9px;
+        font-weight: 700;
+        color: var(--text-muted);
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        margin-bottom: 2px;
+      }
+
+      .sig-name {
+        background: linear-gradient(90deg, #f59e0b, #fbbf24, #fde68a, #fbbf24, #f59e0b);
+        background-size: 200% auto;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: shimmer 3s linear infinite;
+        font-weight: 800;
+        font-size: 16px;
+      }
+
+      .sig-role {
+        font-size: 10px;
+        font-weight: 600;
+        color: var(--accent);
+        letter-spacing: 0.3px;
+      }
+
+      /* ── THEME TOGGLE ── */
+      .theme-toggle {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        user-select: none;
+      }
+
+      .theme-toggle-label {
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--text-muted);
+      }
+
+      .theme-switch {
+        position: relative;
+        width: 44px;
+        height: 24px;
+        background: var(--border);
+        border-radius: 12px;
+        transition: background 0.3s;
+        cursor: pointer;
+      }
+
+      .theme-switch::after {
+        content: '';
+        position: absolute;
+        top: 3px;
+        left: 3px;
+        width: 18px;
+        height: 18px;
+        background: #fff;
+        border-radius: 50%;
+        transition: transform 0.3s;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+      }
+
+      body.light-mode .theme-switch {
+        background: var(--accent);
+      }
+
+      body.light-mode .theme-switch::after {
+        transform: translateX(20px);
+      }
+
+      /* ── FORMAT TABS ── */
+      .format-tabs {
+        max-width: 240mm;
+        margin: 0 auto 12px;
+        padding: 0 24px;
+        display: flex;
+        gap: 8px;
+        animation: fadeIn 0.5s ease 0.1s both;
+      }
+
+      .format-tab {
+        flex: 1;
+        padding: 12px 20px;
+        border: 2px solid var(--border);
+        border-radius: 12px;
+        background: var(--bg-card);
+        color: var(--text-muted);
+        font-family: 'Inter', Arial, sans-serif;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.25s;
+        text-align: center;
+      }
+
+      .format-tab:hover {
+        background: var(--bg-card-hover);
+        border-color: var(--accent);
+        color: var(--text);
+      }
+
+      .format-tab.active {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #fff;
+        box-shadow: 0 4px 14px rgba(13,148,136,0.35);
+      }
+
+      /* ── CONTROLS ── */
+      .controls {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 20px 24px;
+        margin-bottom: 20px;
+        max-width: 240mm;
+        margin-left: auto;
+        margin-right: auto;
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        animation: fadeIn 0.5s ease 0.2s both;
+        transition: background 0.3s, border-color 0.3s;
+      }
+
+      .ctrl {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        flex: 1;
+        min-width: 140px;
+      }
+
+      .ctrl label {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .ctrl input,
+      .ctrl select {
+        padding: 9px 12px;
+        border: 2px solid var(--border);
+        border-radius: 8px;
+        font-size: 13px;
+        font-family: 'Inter', Arial, sans-serif;
+        outline: none;
+        color: var(--text);
+        background: var(--bg);
+        transition: border-color 0.2s, background 0.3s, color 0.3s;
+      }
+
+      .ctrl input:focus,
+      .ctrl select:focus {
+        border-color: var(--accent);
+      }
+
+      .btn-load {
+        background: var(--red);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        font-family: 'Inter', Arial, sans-serif;
+        white-space: nowrap;
+        height: 38px;
+        align-self: flex-end;
+        transition: background 0.2s;
+      }
+
+      .btn-load:hover { background: var(--red-hover); }
+
+      .btn-print {
+        background: var(--green);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        font-family: 'Inter', Arial, sans-serif;
+        white-space: nowrap;
+        height: 38px;
+        align-self: flex-end;
+        transition: background 0.2s;
+      }
+
+      .btn-print:hover { background: var(--green-hover); }
+
+      .status {
+        font-size: 12px;
+        color: var(--text-muted);
+        padding: 6px 0;
+        width: 100%;
+      }
+
+      .preview-wrap {
+        max-width: 240mm;
+        margin: 0 auto;
+        padding: 0 24px 40px;
+        overflow-x: auto;
+      }
+    }
+
+    /* ══════════════ FORM STYLES (both screen & print) ══════════════ */
+    .form-page {
+      background: #fff;
+      width: 210mm;
+      margin: 0 auto;
+      padding: 6mm 8mm;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+      font-size: 8pt;
+      color: #000;
+    }
+
+    .form-page-landscape {
+      background: #fff;
+      width: 297mm;
+      min-height: 210mm;
+      margin: 0 auto;
+      padding: 6mm 8mm;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+      font-size: 7pt;
+      color: #000;
+    }
+
+    @media screen {
+      .form-page,
+      .form-page-landscape {
+        box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+        border-radius: 6px;
+        border: 1px solid var(--border);
+      }
+
+      .form-page-landscape {
+        min-width: 297mm;
+        height: 210mm;
+        overflow: visible;
+      }
+    }
+
+    /* ── ENCABEZADO ── */
+    .hdr-outer {
+      border: 2px solid #8b1a1a;
+      margin-bottom: 3mm;
+    }
+
+    .hdr-top {
+      display: grid;
+      grid-template-columns: 38mm 1fr 45mm;
+      border-bottom: 1.5px solid #8b1a1a;
+    }
+
+    .hdr-logo {
+      border-right: 1.5px solid #8b1a1a;
+      padding: 2mm;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .hdr-logo img { height: 18mm; width: auto; }
+
+    .hdr-title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13pt;
+      font-weight: 900;
+      text-align: center;
+      letter-spacing: 0.5px;
+      padding: 3mm 4mm;
+    }
+
+    .hdr-title-mp {
+      font-size: 11pt;
+      padding: 1.5mm 4mm;
+    }
+
+    /* MP landscape: header más compacto */
+    .form-page-landscape .hdr-outer { margin-bottom: 0.5mm; }
+    .form-page-landscape .hdr-logo { padding: 1mm; }
+    .form-page-landscape .hdr-logo img { height: 13mm; }
+    .form-page-landscape .hdr-code { padding: 1mm 2mm; line-height: 1.4; }
+    .form-page-landscape .hdr-cell { padding: 1mm 3mm; }
+    .form-page-landscape .hdr-val { min-width: 25mm; }
+
+    .hdr-code {
+      border-left: 1.5px solid #8b1a1a;
+      padding: 2mm 3mm;
+      font-size: 7pt;
+      line-height: 1.7;
+    }
+
+    .hdr-code span { font-weight: 700; }
+
+    .hdr-bottom {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    .hdr-cell {
+      padding: 2mm 3mm;
+      border-right: 1.5px solid #8b1a1a;
+      font-size: 8pt;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .hdr-cell:last-child { border-right: none; }
+    .hdr-cell b { font-weight: 700; }
+
+    .hdr-val {
+      border-bottom: 1px solid #8b1a1a;
+      min-width: 30mm;
+      display: inline-block;
+      font-weight: 700;
+      font-size: 9pt;
+      text-align: center;
+    }
+
+    /* ── INFO ROW ── */
+    .info-section {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      border: 1.5px solid #8b1a1a;
+      border-bottom: none;
+      margin-bottom: 0;
+    }
+
+    .info-left {
+      border-right: 1.5px solid #8b1a1a;
+      padding: 2mm 3mm;
+      grid-row: span 2;
+      display: flex;
+      flex-direction: column;
+      gap: 3mm;
+      justify-content: center;
+    }
+
+    .info-field {
+      display: flex;
+      align-items: center;
+      gap: 6mm;
+      font-size: 8.5pt;
+      font-weight: 700;
+    }
+
+    .info-field-val {
+      border-bottom: 1.5px solid #000;
+      min-width: 40mm;
+      font-size: 10pt;
+      font-weight: 900;
+      display: inline-block;
+    }
+
+    .info-freq {
+      border-right: 1.5px solid #8b1a1a;
+      padding: 2mm 3mm;
+      font-size: 8pt;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .info-acciones { padding: 0; }
+
+    .acciones-title {
+      background: #fff;
+      border-bottom: 1.5px solid #8b1a1a;
+      border-left: 0;
+      text-align: center;
+      font-size: 8pt;
+      font-weight: 900;
+      padding: 1.5mm;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .acciones-text {
+      padding: 1.5mm 2mm;
+      font-size: 7pt;
+      line-height: 1.5;
+    }
+
+    /* ── TABLA PRINCIPAL ── */
+    .main-table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1.5px solid #8b1a1a;
+    }
+
+    .main-table th,
+    .main-table td {
+      border: 1px solid #8b1a1a;
+      text-align: center;
+      padding: 0;
+      vertical-align: middle;
+      color: #000;
+    }
+
+    .main-table .th-hora {
+      width: 14mm;
+      background: #fff;
+      font-size: 8pt;
+      font-weight: 700;
+      padding: 1.5mm;
+    }
+
+    .main-table .th-area {
+      font-size: 8pt;
+      font-weight: 700;
+      padding: 2mm 1mm;
+      line-height: 1.3;
+      background: #fff;
+    }
+
+    .main-table .th-sub {
+      font-size: 7pt;
+      font-weight: 400;
+      padding: 1mm;
+      background: #fff;
+    }
+
+    .main-table .th-obs {
+      font-size: 8pt;
+      font-weight: 700;
+      padding: 2mm;
+      background: #fff;
+    }
+
+    .main-table td {
+      height: 6.5mm;
+      font-size: 8.5pt;
+      background: #fff;
+    }
+
+    .main-table td.hora-cell {
+      font-weight: 700;
+      font-size: 8.5pt;
+    }
+
+    .main-table td.obs-cell {
+      text-align: left;
+      padding: 1mm 2mm;
+      font-size: 7.5pt;
+    }
+
+    /* MP table smaller */
+    .main-table-mp th {
+      font-size: 6.5pt !important;
+      padding: 1mm !important;
+    }
+
+    .main-table-mp td {
+      height: 5.5mm;
+      font-size: 6.5pt;
+    }
+
+    .main-table-mp .th-hora {
+      width: 10mm;
+      font-size: 6.5pt;
+    }
+
+    .main-table-mp td.hora-cell {
+      font-size: 6.5pt;
+    }
+
+    .main-table-mp td.obs-cell {
+      font-size: 6pt;
+    }
+
+    /* ── ACCIONES CORRECTIVAS ABAJO ── */
+    .acciones-bottom {
+      border: 1.5px solid #8b1a1a;
+      border-top: none;
+      padding: 1.5mm 3mm;
+      min-height: 10mm;
+    }
+
+    .acciones-bottom-title {
+      font-size: 8pt;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .acciones-bottom-lines {
+      margin-top: 1mm;
+      display: flex;
+      flex-direction: column;
+      gap: 2mm;
+    }
+
+    .acciones-line {
+      border-bottom: 1px solid #8b1a1a;
+      min-height: 4mm;
+      font-size: 8pt;
+    }
+
+    /* ── LEYENDA ── */
+    .mp-bottom-row {
+      display: flex;
+      gap: 4mm;
+      align-items: flex-start;
+      margin-top: 2mm;
+    }
+    .mp-chart-wrap {
+      flex: 0 0 55%;
+      min-width: 0;
+    }
+    .mp-chart-wrap canvas {
+      width: 100% !important;
+      height: 30mm !important;
+    }
+    .mp-params-side {
+      flex: 0 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5mm;
+    }
+    @media print {
+      .mp-chart-wrap canvas {
+        width: 100% !important;
+        height: 28mm !important;
+      }
+    }
+    .leyenda-mp {
+      font-size: 7.5pt;
+      font-weight: 700;
+      margin: 2mm 0 1mm;
+      color: #000;
+    }
+
+    /* ── PARAMETROS ── */
+    .params-wrap {
+      display: flex;
+      justify-content: center;
+      margin: 3mm 0;
+    }
+
+    .params-table {
+      border-collapse: collapse;
+      width: 100mm;
+    }
+
+    .params-table th,
+    .params-table td {
+      border: 1.5px solid #8b1a1a;
+      padding: 1.5mm 3mm;
+      font-size: 8pt;
+      text-align: center;
+      color: #000;
+      background: #fff;
+    }
+
+    .params-table .params-header {
+      font-size: 8.5pt;
+      font-weight: 900;
+      text-align: center;
+      background: #fff;
+    }
+
+    .params-table .col-header {
+      font-weight: 700;
+      background: #fff;
+    }
+
+    .params-table-mp {
+      width: 120mm;
+    }
+
+    /* ── FIRMAS ── */
+    .firmas {
+      display: flex;
+      justify-content: space-between;
+      margin: 4mm 8mm 3mm;
+    }
+
+    .firma {
+      text-align: center;
+      width: 70mm;
+    }
+
+    .firma-line {
+      border-top: 1.5px solid #000;
+      height: 0;
+      padding: 0;
+      margin: 0 auto 1.5mm;
+    }
+
+    .firma-nombre {
+      font-size: 8pt;
+      font-weight: 700;
+      margin-bottom: 1mm;
+    }
+
+    .firma-sub {
+      font-size: 7pt;
+      color: #555;
+      margin: 0;
+    }
+
+    /* ── PIE ── */
+    .footer-doc {
+      text-align: center;
+      font-size: 7pt;
+      color: #333;
+      border-top: 1px solid #8b1a1a;
+      padding-top: 2mm;
+      margin-top: 1mm;
+    }
+
+    /* ── HIDDEN HELPER ── */
+    .hidden { display: none !important; }
+
+    /* ══════════════ PRINT ══════════════ */
+    @media print {
+      body {
+        background: #fff !important;
+        color: #000 !important;
+        padding: 0;
+        margin: 0;
+      }
+
+      .page-header,
+      .format-tabs,
+      .controls,
+      .theme-toggle {
+        display: none !important;
+      }
+
+      .preview-wrap {
+        max-width: none;
+        padding: 0;
+        margin: 0;
+        overflow: visible;
+      }
+
+      .form-page {
+        width: 100%;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        border: none !important;
+        padding: 5mm 7mm;
+        margin: 0;
+        font-size: 7.5pt;
+      }
+
+      .form-page-landscape {
+        width: 100%;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        border: none !important;
+        padding: 4mm 6mm;
+        margin: 0;
+        font-size: 6pt;
+      }
+
+      .main-table td { height: 7.5mm; }
+      .main-table-mp td { height: 4.5mm; }
+      .acciones-bottom { min-height: 10mm; }
+      .acciones-line { min-height: 4mm; }
+      .params-wrap { margin: 2mm 0; }
+      .firmas { margin: 5mm 8mm 1mm; page-break-inside: avoid; }
+      .footer-doc { margin-top: 1mm; padding-top: 1mm; }
+      .form-page-landscape .hdr-outer { margin-bottom: 1.5mm; }
+      .form-page-landscape .params-wrap { margin: 1.5mm 0; }
+      .form-page-landscape .firmas { margin: 4mm 8mm 1mm; }
+      .form-page-landscape .acciones-bottom { min-height: 5mm; }
+      .form-page-landscape .acciones-line { min-height: 2.5mm; }
+      .form-page-landscape .footer-doc { padding-top: 1mm; margin-top: 0; }
+
+      .hidden { display: none !important; }
+      #chartEmpaqueTemp, #chartCamaraPT, #chartAcondicionado, #chartEmbandejado {
+        max-height: 18mm !important;
+        height: 18mm !important;
+        overflow: hidden !important;
+      }
+      .chart-pair-wrap { overflow: hidden !important; max-height: 22mm !important; }
+      .chart-pair-wrap canvas { max-height: 18mm !important; }
+    }
+
+    /* Empaque print: portrait */
+    body.print-empaque {
+      /* default portrait */
+    }
+
+    /* MP print: landscape */
+    body.print-mp .form-page-landscape {
+      width: 100%;
+    }
+
+    @media print {
+      @page { size: A4; margin: 0; }
+    }
+
+    /* ══════════════ RESPONSIVE ══════════════ */
+    @media screen and (max-width: 768px) {
+      .page-header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+
+      .page-header-right {
+        align-items: center;
+        text-align: center;
+      }
+
+      .sig-block { text-align: center; }
+
+      .format-tabs {
+        flex-direction: column;
+      }
+
+      .controls {
+        flex-direction: column;
+      }
+
+      .ctrl { min-width: 100%; }
+
+      .btn-load, .btn-print {
+        width: 100%;
+        align-self: stretch;
+      }
+
+      .preview-wrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+    }
+  </style>
 </head>
-<body>
-<div class="wrap">
 
-<!-- ══ HEADER ══ -->
-<header>
-  <div class="hlogo">
-    <div class="hicon">🧪</div>
-    <div>
-      <h1>Stock de Laboratorio · Microbiología</h1>
-      <div class="hsubt">Frutos Tropicales · Área de Calidad</div>
+<body>
+
+  <!-- ══════════ PAGE HEADER (screen only) ══════════ -->
+  <div class="page-header">
+    <div class="page-header-left">
+      <img src="LOGO.png" alt="Frutos Tropicales">
+      <a href="temperaturas.html" class="btn-portal">🌡️ Formatos de Temperaturas</a>
+    </div>
+    <div class="page-header-center">
+      <h1>Formatos de Temperaturas</h1>
+    </div>
+    <div class="page-header-right">
+      <div class="sig-block">
+        <div class="sig-label">DESARROLLADO POR:</div>
+        <div class="sig-name">Rodrigo Garcia</div>
+        <div class="sig-role">Systems Analyst &amp; Developer-QA</div>
+      </div>
+      <div class="theme-toggle" onclick="toggleTheme()">
+        <span class="theme-toggle-label">Modo</span>
+        <div class="theme-switch" id="themeSwitch"></div>
+      </div>
     </div>
   </div>
-  <div class="hright">
-    <div class="hdate">📅 18/03/2026</div>
-    <button class="theme-btn" onclick="toggleTheme()">
-      <span id="themeIcon">☀️</span>
-      <span class="theme-text" id="themeText">Modo claro</span>
+
+  <!-- ══════════ FORMAT TABS ══════════ -->
+  <div class="format-tabs">
+    <button class="format-tab active" id="tabMP" data-format="materia-prima" onclick="switchFormat('materia-prima')">
+      🚚 Cámaras de Materia Prima
+    </button>
+    <button class="format-tab" id="tabProceso" data-format="proceso" onclick="switchFormat('proceso')">
+      🏭 Sala de Proceso
+    </button>
+    <button class="format-tab" id="tabEmpaque" data-format="empaque" onclick="switchFormat('empaque')">
+      ❄️ Sala de Empaque
     </button>
   </div>
-</header>
 
-<!-- ══ KPIs ══ -->
-<div class="kpi-row">
-  <div class="kpi c1">
-    <div class="kpi-lbl">Total Productos</div>
-    <div class="kpi-val" id="kv1">0</div>
-    <div class="kpi-sub">13 UND · 2 KG · 15 LT</div>
-  </div>
-  <div class="kpi c2">
-    <div class="kpi-lbl">⚠ Crítico</div>
-    <div class="kpi-val" id="kv2">0</div>
-    <div class="kpi-sub">Menos de 7 días de stock</div>
-  </div>
-  <div class="kpi c3">
-    <div class="kpi-lbl">Stock Bajo</div>
-    <div class="kpi-val" id="kv3">0</div>
-    <div class="kpi-sub">Entre 7 y 15 días</div>
-  </div>
-  <div class="kpi c4">
-    <div class="kpi-lbl">UND en Stock</div>
-    <div class="kpi-val" id="kv4">0</div>
-    <div class="kpi-sub">Unidades físicas disponibles</div>
-  </div>
-  <div class="kpi c5">
-    <div class="kpi-lbl">Consumo Dec–Mar</div>
-    <div class="kpi-val" id="kv5">0</div>
-    <div class="kpi-sub">UND consumidas período</div>
-  </div>
-</div>
-
-<!-- ══ HERO ROW ══ -->
-<div class="hero-row">
-  <!-- SEMÁFORO -->
-  <div class="card">
-    <div class="ch">
-      <div class="ct">🚦 Semáforo de Stock — Días Disponibles <span class="badge b0">30 productos</span></div>
+  <!-- ══════════ CONTROLS ══════════ -->
+  <div class="controls">
+    <div class="ctrl">
+      <label>Fecha</label>
+      <input type="date" id="ctrlFecha" />
     </div>
-    <p class="csub">Stock actual ÷ consumo mensual estimado · Clic en barra para detalle</p>
-    <div class="semafor-legend">
-      <span class="sl"><span class="sl-dot" style="background:#EF4444"></span>Crítico &lt;7d</span>
-      <span class="sl"><span class="sl-dot" style="background:#FBBC04"></span>Bajo 7–15d</span>
-      <span class="sl"><span class="sl-dot" style="background:#F59E0B"></span>Moderado 15–30d</span>
-      <span class="sl"><span class="sl-dot" style="background:#22C55E"></span>OK ≥30d</span>
-      <span class="sl" style="margin-left:6px"><span class="sl-dot" style="background:rgba(128,128,128,.3)"></span>Sin datos</span>
+    <div class="ctrl">
+      <label>Turno</label>
+      <select id="ctrlTurno">
+        <option value="DIA">TURNO DIA (06:00-17:00)</option>
+        <option value="NOCHE">TURNO NOCHE (18:00-05:00)</option>
+      </select>
     </div>
-    <div class="utabs" style="margin-bottom:10px">
-      <button class="utab active" data-u="all"  onclick="setUTab('all')">Todos (30)</button>
-      <button class="utab"        data-u="UND"  onclick="setUTab('UND')">🔵 UND (13)</button>
-      <button class="utab"        data-u="KG"   onclick="setUTab('KG')">🟣 KG (2)</button>
-      <button class="utab"        data-u="LT"   onclick="setUTab('LT')">🟠 LT (15)</button>
+    <div class="ctrl">
+      <label>Inspector responsable</label>
+      <select id="ctrlInspector">
+        <option>LUIS APONTE</option>
+        <option>MAYDA APONTE</option>
+        <option>SHEYLA CAMONES</option>
+        <option>JOHNNY PAJUELO</option>
+        <option>BLANCA MALVACEDA</option>
+        <option>CHRISTY JIMENEZ</option>
+      </select>
     </div>
-    <div class="chart-scroll"><div class="csi" id="heroWrap" style="height:560px">
-      <canvas id="cHero"></canvas>
-    </div></div>
+    <button class="btn-load" onclick="cargarDatos()">Cargar datos</button>
+    <button class="btn-print" onclick="imprimirFormato()">Imprimir / PDF</button>
+    <div class="status" id="statusMsg">Selecciona fecha y turno, luego carga los datos.</div>
   </div>
 
-  <!-- DETAIL PANEL -->
-  <div class="card dp">
-    <div class="dp-empty" id="dpEmpty">
-      <div class="ei">👆</div>
-      <p>Haz clic en una barra del semáforo o en una fila de la tabla para ver el detalle</p>
-    </div>
-    <div class="dpc" id="dpContent"></div>
-  </div>
-</div>
+  <!-- ══════════ PREVIEW ══════════ -->
+  <div class="preview-wrap">
 
-<!-- ══ BOTTOM ROW ══ -->
-<div class="bot-row">
+    <!-- ══════════ FORMAT 1: SALA DE EMPAQUE ══════════ -->
+    <div class="form-page hidden" id="formEmpaque">
 
-  <!-- CONSUMO POR PERÍODO -->
-  <div class="card">
-    <div class="ch">
-      <div class="ct">📊 Consumo por Período <span class="badge b1">UND/KG · 14 productos</span></div>
-      <div class="chart-btn-row">
-        <button class="tbtn on" id="btnLbl" onclick="toggleLabels()">🏷 Totales</button>
-        <button class="tbtn"    id="btnSt"  onclick="toggleStack()">⧉ Apilar</button>
+      <!-- ENCABEZADO -->
+      <div class="hdr-outer">
+        <div class="hdr-top">
+          <div class="hdr-logo">
+            <img src="logo2.png" alt="Frutos Tropicales">
+          </div>
+          <div class="hdr-title">CONTROL DE TEMPERATURA DE SALA DE EMPAQUE</div>
+          <div class="hdr-code">
+            <span>Codigo :</span> FTP.ACC.FRT.13.060<br>
+            <span>Version:</span> 02<br>
+            <span>Fecha  :</span> 03/01/2026
+          </div>
+        </div>
+        <div class="hdr-bottom">
+          <div class="hdr-cell">
+            <b>FECHA:</b>
+            <span class="hdr-val" id="displayFechaE">&nbsp;</span>
+          </div>
+          <div class="hdr-cell" style="justify-content:center;">
+            <b>FRECUENCIA:</b>&nbsp;Cada hora
+          </div>
+          <div class="hdr-cell" style="border-right:none;border-left:1.5px solid #8b1a1a;">
+            <b>JULIANO:</b>
+            <span class="hdr-val" id="displayJulianoE">&nbsp;</span>
+          </div>
+        </div>
       </div>
-    </div>
 
-    <!-- MONTH PILLS — movidas aquí -->
-    <div class="mpills-row" style="margin-top:8px">
-      <span class="mp-lbl">Filtrar período:</span>
-      <button class="mpill on" data-m="all" id="pillAll">Todos</button>
-      <button class="mpill on" data-m="dic">Diciembre</button>
-      <button class="mpill on" data-m="ene">Enero</button>
-      <button class="mpill on" data-m="feb">Febrero</button>
-      <button class="mpill on" data-m="mar">Mar 1–5</button>
-    </div>
+      <!-- ACCIONES CORRECTIVAS ARRIBA -->
+      <table style="width:100%;border-collapse:collapse;border:1.5px solid #8b1a1a;border-bottom:none;margin-bottom:0;">
+        <tr>
+          <td style="padding:0;vertical-align:top;width:100%">
+            <div style="border-bottom:1.5px solid #8b1a1a;text-align:center;font-size:8pt;font-weight:900;padding:1.5mm;letter-spacing:0.5px;">
+              ACCIONES CORRECTIVAS</div>
+            <div style="padding:1.5mm 2mm;font-size:6.5pt;line-height:1.5;">
+              En caso de no encontrar los parametros de acuerdo a lo establecido, comunicar de inmediato al jefe de
+              mantenimiento y jefe de aseguramiento de la calidad, y reajustar parametros de temperatura.
+            </div>
+          </td>
+        </tr>
+      </table>
 
-    <p class="csub" id="consumoSubtitle" style="margin-top:6px">Todos los períodos · Clic en leyenda para filtrar productos</p>
-    <div class="chart-scroll"><div class="csi" id="consumoWrap" style="height:340px">
-      <canvas id="cConsumo"></canvas>
-    </div></div>
-  </div>
+      <!-- TABLA PRINCIPAL EMPAQUE -->
+      <table class="main-table" id="mainTableE">
+        <thead>
+          <tr>
+            <th class="th-hora" rowspan="2">HORA</th>
+            <th class="th-area">TEMPERATURA DE PRODUCTO</th>
+            <th class="th-area">SALA DE EMPAQUE</th>
+            <th class="th-area">CAMARA DE PRODUCTO<br>TERMINADO</th>
+            <th class="th-area">SALA DE DESPACHO</th>
+            <th class="th-obs" rowspan="2">OBSERVACIONES</th>
+          </tr>
+          <tr>
+            <th class="th-sub">T (&deg;C)</th>
+            <th class="th-sub">T (&deg;C)</th>
+            <th class="th-sub">T (&deg;C)</th>
+            <th class="th-sub">T (&deg;C)</th>
+          </tr>
+        </thead>
+        <tbody id="tableBodyE"></tbody>
+      </table>
 
-  <!-- STOCK ACTUAL -->
-  <div class="card">
-    <div class="ch">
-      <div class="ct">📦 Stock Actual por Categoría <span class="badge b0">18/03/2026</span></div>
-    </div>
-    <p class="csub">Cantidad disponible · Clic para seleccionar</p>
-    <div class="utabs" style="margin-bottom:10px" id="stockTabs">
-      <button class="utab active" data-su="UND" onclick="setStockTab('UND')">🔵 UND</button>
-      <button class="utab"        data-su="KG"  onclick="setStockTab('KG')">🟣 KG</button>
-      <button class="utab"        data-su="LT"  onclick="setStockTab('LT')">🟠 LT</button>
-    </div>
-    <div class="chart-scroll"><div class="csi" id="stockWrap" style="height:300px">
-      <canvas id="cStock"></canvas>
-    </div></div>
-  </div>
-</div>
+      <!-- ACCIONES CORRECTIVAS ABAJO -->
+      <div class="acciones-bottom">
+        <span class="acciones-bottom-title">ACCIONES CORRECTIVAS:</span>
+        <div class="acciones-bottom-lines">
+          <div class="acciones-line" id="acLineE1">&nbsp;</div>
+          <div class="acciones-line" id="acLineE2">&nbsp;</div>
+          <div class="acciones-line" id="acLineE3">&nbsp;</div>
+        </div>
+      </div>
 
-<!-- ══ TABLE ══ -->
-<div class="card card-tbl" style="margin-bottom:18px">
-  <div class="ch" style="margin-bottom:10px">
-    <div class="ct">📋 Inventario Completo <span class="badge b0">30 productos · Hoja1 (2)</span></div>
-    <div style="font-size:10px;color:var(--ts)">Clic en encabezado para ordenar · Clic en fila para detalle</div>
-  </div>
-  <div class="ctrl-row">
-    <span class="lbl">Und:</span>
-    <button class="tbtn on" id="fAll"  onclick="setTF('all')">Todos</button>
-    <button class="tbtn"    id="fUnd"  onclick="setTF('UND')">UND</button>
-    <button class="tbtn"    id="fKg"   onclick="setTF('KG')">KG</button>
-    <button class="tbtn"    id="fLt"   onclick="setTF('LT')">LT</button>
-    <div class="divider"></div>
-    <span class="lbl">Estado:</span>
-    <button class="tbtn on" id="fSAll"  onclick="setSF('all')">Todos</button>
-    <button class="tbtn"    id="fSCrit" onclick="setSF('crit')" style="color:#EF4444">⚠ Crítico</button>
-    <button class="tbtn"    id="fSLow"  onclick="setSF('low')"  style="color:#FBBC04">Bajo</button>
-    <button class="tbtn"    id="fSOk"   onclick="setSF('ok')"   style="color:#22C55E">OK</button>
-  </div>
-  <div class="tw"><table id="mainTable">
-    <thead><tr>
-      <th onclick="sortTbl(0)">#</th>
-      <th onclick="sortTbl(1)">Producto</th>
-      <th onclick="sortTbl(2)">Und</th>
-      <th onclick="sortTbl(3)">Stock</th>
-      <th onclick="sortTbl(4)">Gasto/mes</th>
-      <th onclick="sortTbl(5)">Días rest.</th>
-      <th onclick="sortTbl(6)">Consumo total</th>
-      <th onclick="sortTbl(7)">Estado</th>
-    </tr></thead>
-    <tbody id="tBody"></tbody>
-  </table></div>
-</div>
+      <!-- GRAFICOS + PARAMETROS -->
+      <div class="chart-pair-wrap" style="display:flex;gap:2mm;align-items:flex-start;margin-top:1mm;overflow:hidden;">
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:7pt;font-weight:700;text-align:center;margin-bottom:1mm;color:#000;">SALA DE EMPAQUE (&deg;C)</div>
+          <div style="position:relative;height:80px;overflow:hidden;"><canvas id="chartEmpaqueTemp"></canvas></div>
+        </div>
+        <div style="flex:0 0 auto;font-size:6pt;">
+          <table class="params-table" style="width:auto;">
+            <tr><th colspan="2" class="params-header" style="font-size:6pt;padding:1mm;">PAR&Aacute;METROS</th></tr>
+            <tr><th class="col-header" style="font-size:5.5pt;padding:0.8mm 1.5mm;">ZONA</th><th class="col-header" style="font-size:5.5pt;padding:0.8mm 1.5mm;">RANGO</th></tr>
+            <tr><td style="font-size:5.5pt;padding:0.8mm 1.5mm;">PRODUCTO</td><td style="font-size:5.5pt;padding:0.8mm 1.5mm;">-18 a -20</td></tr>
+            <tr><td style="font-size:5.5pt;padding:0.8mm 1.5mm;">EMPAQUE</td><td style="font-size:5.5pt;padding:0.8mm 1.5mm;">0 a 8</td></tr>
+            <tr><td style="font-size:5.5pt;padding:0.8mm 1.5mm;">C&Aacute;MARA PT</td><td style="font-size:5.5pt;padding:0.8mm 1.5mm;">-16 a -25</td></tr>
+            <tr><td style="font-size:5.5pt;padding:0.8mm 1.5mm;">DESPACHO</td><td style="font-size:5.5pt;padding:0.8mm 1.5mm;">0 a 5</td></tr>
+          </table>
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:7pt;font-weight:700;text-align:center;margin-bottom:1mm;color:#000;">C&Aacute;MARA DE PRODUCTO TERMINADO (&deg;C)</div>
+          <div style="position:relative;height:80px;overflow:hidden;"><canvas id="chartCamaraPT"></canvas></div>
+        </div>
+      </div>
 
-<footer style="text-align:center;padding:14px;border-top:1px solid var(--cb);font-size:10px;color:var(--ts)">
-  🧪 Dashboard Stock Laboratorio · Frutos Tropicales · 18/03/2026 · Datos: Hoja1(2), MICROBIOLOGIA, ESTIMACION DE CONSUMO
-</footer>
-</div><!-- /wrap -->
+      <!-- FIRMAS -->
+      <div class="firmas" style="margin-top:8mm;">
+        <div class="firma">
+          <div class="firma-line">&nbsp;</div>
+          <div class="firma-nombre" id="firmaInspectorE">&nbsp;</div>
+          <div class="firma-sub">Inspector de Aseguramiento de la Calidad</div>
+        </div>
+        <div class="firma">
+          <div class="firma-line">&nbsp;</div>
+          <div class="firma-nombre">ANAIS GAMBOA</div>
+          <div class="firma-sub">V&deg;B&deg; Coordinador de SIG</div>
+        </div>
+      </div>
 
-<script>
-Chart.register(ChartDataLabels);
+      <!-- PIE -->
+      <div class="footer-doc">
+        DOCUMENTO CONTROLADO PROHIBIDA SU REPRODUCCION SIN AUTORIZACION DE FRUTOS TROPICALES PERU EXPORT S.A.C
+      </div>
 
-/* ════════════ DATA ════════════ */
-const D=[
-  {id:0, n:'MF Coliforme',    full:'MICROFAST Coliforme Coli Count Plate',           cat:'Placas',      und:'UND',stock:36,  gasto:200,total:220,m:{dic:11,ene:62, feb:123,mar:24}},
-  {id:1, n:'MF Aerobic',      full:'MICROFAST Aerobic Count Plate',                  cat:'Placas',      und:'UND',stock:37,  gasto:200,total:215,m:{dic:17,ene:58, feb:120,mar:20}},
-  {id:2, n:'MF Staph.',       full:'MICROFAST Staphylococcus Aureus Count Plate',    cat:'Placas',      und:'UND',stock:68,  gasto:180,total:195,m:{dic:5, ene:55, feb:115,mar:20}},
-  {id:3, n:'MF Yeast&Mold',   full:'MICROFAST Yeast & Mold Count Plate',             cat:'Placas',      und:'UND',stock:41,  gasto:200,total:213,m:{dic:17,ene:58, feb:118,mar:20}},
-  {id:4, n:'MF Listeria',     full:'MICROFAST Listeria Count Plate (x50)',           cat:'Placas',      und:'UND',stock:95,  gasto:130,total:92, m:{dic:17,ene:25, feb:50, mar:0}},
-  {id:5, n:'Aquateste',       full:'Aquateste Coli ONPG/MUG Caldo CX10',            cat:'Kits',        und:'UND',stock:17,  gasto:10, total:3,  m:{dic:0, ene:0,  feb:3,  mar:0}},
-  {id:6, n:'Capiswab',        full:'Capiswab Letheen Broth 10mL x100',              cat:'Muestreo',    und:'UND',stock:115, gasto:100,total:83, m:{dic:17,ene:27, feb:38, mar:1}},
-  {id:7, n:'Capisponge',      full:'Capisponge Neutralizing Buffer Sponge x25',     cat:'Muestreo',    und:'UND',stock:120, gasto:100,total:14, m:{dic:0, ene:0,  feb:14, mar:0}},
-  {id:8, n:'Frascos Est.',    full:'Frascos Estériles 100mL c/Tiosulfato PAQ x10',  cat:'Muestreo',    und:'UND',stock:17,  gasto:10, total:3,  m:{dic:0, ene:0,  feb:3,  mar:0}},
-  {id:9, n:'ATP Quick Swab',  full:'ATP Quick Swab YL0001',                         cat:'ATP',         und:'UND',stock:169, gasto:180,total:183,m:{dic:77,ene:36, feb:70, mar:0}},
-  {id:10,n:'Isopo Surface',   full:'Isopo Surface Protein Allergen',                cat:'Kits',        und:'UND',stock:8,   gasto:10, total:0,  m:{dic:0, ene:0,  feb:0,  mar:0}},
-  {id:11,n:'SIMUL Salmonella',full:'SIMUL Salmonella x96 Pruebas',                  cat:'Kits',        und:'UND',stock:95,  gasto:78, total:80, m:{dic:0, ene:44, feb:28, mar:8}},
-  {id:12,n:'SIMUL Listeria',  full:'SIMUL Listeria Duo x96 Pruebas',                cat:'Kits',        und:'UND',stock:95,  gasto:78, total:80, m:{dic:0, ene:44, feb:28, mar:8}},
-  {id:13,n:'BPW (1 KG)',      full:'Agua Peptonada Bufferada (BPW) Dehydrated 1 KG',cat:'Medios',      und:'KG', stock:0.80,gasto:0.8,total:2.47,m:{dic:.04,ene:1.92,feb:.47,mar:.04}},
-  {id:14,n:'LREB (1 KG)',     full:'Medio de Cultivo para Listeria LREB 1 KG',      cat:'Medios',      und:'KG', stock:1.02,gasto:0.6,total:2.22,m:{dic:0,  ene:1.85,feb:.30,mar:.07}},
-  {id:15,n:'Cloro 4C',        full:'Solución Cloro 4C',                             cat:'Soluc. Cloro',und:'LT', stock:1.70,gasto:2.0,total:0,  m:{dic:0,ene:0,feb:0,mar:0}},
-  {id:16,n:'Cloro 1',         full:'Solución Cloro 1',                              cat:'Soluc. Cloro',und:'LT', stock:1.90,gasto:1.5,total:0,  m:{dic:0,ene:0,feb:0,mar:0}},
-  {id:17,n:'Cloro 4B',        full:'Solución Cloro 4B',                             cat:'Soluc. Cloro',und:'LT', stock:1.80,gasto:2.0,total:0,  m:{dic:0,ene:0,feb:0,mar:0}},
-  {id:18,n:'Buffer AP-1',     full:'Solución Buffer AP-1',                          cat:'Soluc. AP',   und:'LT', stock:2.00,gasto:1.5,total:0,  m:{dic:0,ene:0,feb:0,mar:0}},
-  {id:19,n:'Cloro 2.22',      full:'Solución Cloro 2.22',                           cat:'Soluc. Cloro',und:'LT', stock:1.70,gasto:1.5,total:0,  m:{dic:0,ene:0,feb:0,mar:0}},
-  {id:20,n:'Cloro 3',         full:'Solución Cloro 3',                              cat:'Soluc. Cloro',und:'LT', stock:1.70,gasto:1.5,total:0,  m:{dic:0,ene:0,feb:0,mar:0}},
-  {id:21,n:'Titulante AP-2',  full:'Solución Titulante AP-2',                       cat:'Soluc. AP',   und:'LT', stock:2.00,gasto:2.0,total:0,  m:{dic:0,ene:0,feb:0,mar:0}},
-  {id:22,n:'Yoduro AP-3',     full:'Solución Yoduro AP-3',                          cat:'Soluc. AP',   und:'LT', stock:2.00,gasto:1.5,total:0,  m:{dic:0,ene:0,feb:0,mar:0}},
-  {id:23,n:'Indicadora AP-4', full:'Solución Indicadora AP-4',                      cat:'Soluc. AP',   und:'LT', stock:2.00,gasto:1.5,total:0,  m:{dic:0,ene:0,feb:0,mar:0}},
-  {id:24,n:'Titulante AP-5',  full:'Solución Titulante AP-5',                       cat:'Soluc. AP',   und:'LT', stock:0.08,gasto:2.0,total:0,  m:{dic:0,ene:0,feb:0,mar:0}},
-  {id:25,n:'Storage',         full:'Storage — Solución de Almacenamiento pH',       cat:'pH Buffers',  und:'LT', stock:0.46,gasto:1.0,total:0,  m:{dic:0,ene:0,feb:0,mar:0}},
-  {id:26,n:'Cleaning',        full:'Cleaning — Solución de Limpieza pH',            cat:'pH Buffers',  und:'LT', stock:0.47,gasto:1.0,total:0,  m:{dic:0,ene:0,feb:0,mar:0}},
-  {id:27,n:'pH 10.01',        full:'Buffer de Calibración pH 10.01',                cat:'pH Buffers',  und:'LT', stock:0.47,gasto:1.0,total:0,  m:{dic:0,ene:0,feb:0,mar:0}},
-  {id:28,n:'pH 4.01',         full:'Buffer de Calibración pH 4.01',                 cat:'pH Buffers',  und:'LT', stock:0.49,gasto:1.0,total:0,  m:{dic:0,ene:0,feb:0,mar:0}},
-  {id:29,n:'pH 7.01',         full:'Buffer de Calibración pH 7.01',                 cat:'pH Buffers',  und:'LT', stock:0.47,gasto:1.0,total:0,  m:{dic:0,ene:0,feb:0,mar:0}},
-];
+    </div><!-- /formEmpaque -->
 
-const MC={dic:'#818CF8',ene:'#00D4FF',feb:'#F472B6',mar:'#34D399'};
-const MK=['dic','ene','feb','mar'];
-const ML=['Dic 2025','Ene 2026','Feb 2026','Mar 1-5'];
+    <!-- ══════════ FORMAT 2: CAMARAS DE MATERIA PRIMA ══════════ -->
+    <div class="form-page-landscape" id="formMP">
 
-/* ════════════ THEME HELPERS ════════════ */
-function isLight(){ return document.documentElement.getAttribute('data-theme')==='light' }
-function th(){
-  const l=isLight();
-  return{
-    grid:  l?'rgba(0,0,0,.08)':'rgba(255,255,255,.05)',
-    tick:  l?'#64748B':'#94A3B8',
-    ttBg:  l?'rgba(248,250,252,.98)':'rgba(6,8,26,.97)',
-    ttCol: l?'#1E293B':'#E2E8F0',
-    ttBdr: l?'rgba(0,0,0,.1)':'rgba(255,255,255,.1)',
-    lgnd:  l?'#475569':'#94A3B8',
-    lblCol:l?'#1E293B':'#ffffff',
-    totalCol:l?'#1E293B':'#ffffff',
-  };
-}
-function toggleTheme(){
-  const l=isLight();
-  document.documentElement.setAttribute('data-theme',l?'dark':'light');
-  document.getElementById('themeIcon').textContent=l?'☀️':'🌙';
-  document.getElementById('themeText').textContent=l?'Modo claro':'Modo oscuro';
-  buildHero(); buildConsumo(); buildStock();
-  showDetail();
-}
+      <!-- ENCABEZADO -->
+      <div class="hdr-outer">
+        <div class="hdr-top">
+          <div class="hdr-logo">
+            <img src="logo2.png" alt="Frutos Tropicales">
+          </div>
+          <div class="hdr-title hdr-title-mp">CONTROL DE TEMPERATURA DE CAMARAS DE MATERIA PRIMA</div>
+          <div class="hdr-code">
+            <span>Codigo :</span> FTP.ACC.FRT.13.067<br>
+            <span>Version:</span> 01<br>
+            <span>Fecha  :</span> 22/10/2025
+          </div>
+        </div>
+        <div class="hdr-bottom">
+          <div class="hdr-cell">
+            <b>FECHA:</b>
+            <span class="hdr-val" id="displayFechaMP">&nbsp;</span>
+          </div>
+          <div class="hdr-cell" style="justify-content:center;">
+            <b>FRECUENCIA:</b>&nbsp;Cada hora
+          </div>
+          <div class="hdr-cell" style="border-right:none;border-left:1.5px solid #8b1a1a;">
+            <b>JULIANO:</b>
+            <span class="hdr-val" id="displayJulianoMP">&nbsp;</span>
+          </div>
+        </div>
+      </div>
 
-/* ════════════ HELPERS ════════════ */
-function dias(p){ return p.gasto>0?Math.round(p.stock/(p.gasto/30)):null }
-function status(p){
-  const d=dias(p);
-  if(d===null)return{key:'none',lbl:'Sin datos',cls:'s-ok',dcls:'dps-ok',color:'rgba(128,128,128,.35)'};
-  if(d<7)  return{key:'crit',lbl:'⚠ CRÍTICO · '+d+' días',cls:'s-crit',dcls:'dps-crit',color:'#EF4444'};
-  if(d<15) return{key:'low', lbl:'🟡 Bajo · '+d+' días',   cls:'s-low', dcls:'dps-low', color:'#FBBC04'};
-  if(d<30) return{key:'mod', lbl:'🟠 Moderado · '+d+' días',cls:'s-mod',dcls:'dps-mod', color:'#F59E0B'};
-  return     {key:'ok',  lbl:'✅ OK · '+d+' días',          cls:'s-ok',  dcls:'dps-ok',  color:'#22C55E'};
-}
-function fmtQ(p,n){const v=n??p.stock;return(p.und==='KG'||p.und==='LT')?v.toFixed(2)+' '+p.und:v+' '+p.und}
-function undColor(u){return u==='UND'?'var(--und)':u==='KG'?'var(--kg)':'var(--lt)'}
-function undColorRaw(u){return u==='UND'?'#00D4FF':u==='KG'?'#C084FC':'#FB923C'}
+      <!-- ACCIONES CORRECTIVAS ARRIBA (MP - compactas) -->
+      <table style="width:100%;border-collapse:collapse;border:1.5px solid #8b1a1a;border-bottom:none;margin-bottom:0;">
+        <tr>
+          <td style="padding:0;vertical-align:top;width:100%">
+            <div style="border-bottom:1.5px solid #8b1a1a;text-align:center;font-size:7pt;font-weight:900;padding:0.8mm;letter-spacing:0.5px;">
+              ACCIONES CORRECTIVAS</div>
+            <div style="padding:0.8mm 2mm;font-size:5.5pt;line-height:1.3;">
+              En caso de no encontrar los parametros de acuerdo a lo establecido, comunicar de inmediato al jefe de
+              mantenimiento y jefe de aseguramiento de la calidad, y reajustar parametros de temperatura.
+            </div>
+          </td>
+        </tr>
+      </table>
 
-/* ════════════ STATE ════════════ */
-const S={
-  sel:null,months:new Set(['dic','ene','feb','mar']),
-  labels:true,stacked:false,heroTab:'all',stockTab:'UND',
-  sortCol:-1,sortDir:1
-};
-let charts={};
-let tblFilter='all',tblStatus='all';
+      <!-- TABLA PRINCIPAL MP — reducir espacio acciones arriba -->
+      <style>.form-page-landscape .acciones-mp-top { font-size:7pt !important; padding:0.8mm !important; }
+      .form-page-landscape .acciones-mp-body { font-size:5.5pt !important; padding:0.8mm 2mm !important; line-height:1.3 !important; }</style>
+      <table class="main-table main-table-mp" id="mainTableMP">
+        <thead>
+          <tr>
+            <th class="th-hora" rowspan="2">HORA</th>
+            <th class="th-area">TEMPERATURA DE<br>CAMARA DE MP</th>
+            <th class="th-area">TEMPERATURA DE<br>PRODUCTO</th>
+            <th class="th-area">REEFER 1</th>
+            <th class="th-area">REEFER 2</th>
+            <th class="th-area">REEFER 3</th>
+            <th class="th-area">REEFER 4</th>
+            <th class="th-area">REEFER 5</th>
+            <th class="th-area">REEFER 6</th>
+            <th class="th-area">REEFER 7</th>
+            <th class="th-area">REEFER 8</th>
+            <th class="th-area">REEFER 9</th>
+            <th class="th-area">REEFER 10</th>
+            <th class="th-obs" rowspan="2">OBSERVACIONES</th>
+          </tr>
+          <tr>
+            <th class="th-sub">T (&deg;C)</th>
+            <th class="th-sub">T (&deg;C)</th>
+            <th class="th-sub">T (&deg;C)</th>
+            <th class="th-sub">T (&deg;C)</th>
+            <th class="th-sub">T (&deg;C)</th>
+            <th class="th-sub">T (&deg;C)</th>
+            <th class="th-sub">T (&deg;C)</th>
+            <th class="th-sub">T (&deg;C)</th>
+            <th class="th-sub">T (&deg;C)</th>
+            <th class="th-sub">T (&deg;C)</th>
+            <th class="th-sub">T (&deg;C)</th>
+            <th class="th-sub">T (&deg;C)</th>
+          </tr>
+        </thead>
+        <tbody id="tableBodyMP"></tbody>
+      </table>
 
-/* ════════════ KPI COUNTERS ════════════ */
-function animNum(el,target){
-  const dur=1100,t0=performance.now();
-  function step(now){
-    const p=Math.min((now-t0)/dur,1),e=1-Math.pow(1-p,3);
-    el.textContent=Math.round(target*e);
-    if(p<1)requestAnimationFrame(step);
-  }
-  requestAnimationFrame(step);
-}
-window.addEventListener('DOMContentLoaded',()=>{
-  const crit=D.filter(p=>{const d=dias(p);return d!==null&&d<7}).length;
-  const low =D.filter(p=>{const d=dias(p);return d!==null&&d>=7&&d<15}).length;
-  animNum(document.getElementById('kv1'),30);
-  animNum(document.getElementById('kv2'),crit);
-  animNum(document.getElementById('kv3'),low);
-  animNum(document.getElementById('kv4'),D.filter(p=>p.und==='UND').reduce((s,p)=>s+p.stock,0));
-  animNum(document.getElementById('kv5'),D.filter(p=>p.und==='UND').reduce((s,p)=>s+p.total,0));
-});
+      <!-- ACCIONES CORRECTIVAS ABAJO (MP compactas) -->
+      <div class="acciones-bottom" style="min-height:4mm;">
+        <span class="acciones-bottom-title" style="font-size:6.5pt;">ACCIONES CORRECTIVAS:</span>
+        <div class="acciones-bottom-lines">
+          <div class="acciones-line" id="acLineMP1" style="min-height:2mm;">&nbsp;</div>
+          <div class="acciones-line" id="acLineMP2" style="min-height:2mm;">&nbsp;</div>
+          <div class="acciones-line" id="acLineMP3" style="min-height:2mm;">&nbsp;</div>
+        </div>
+      </div>
 
-/* ════════════ MONTH PILLS ════════════ */
-function updateConsumoSubtitle(){
-  const names={dic:'Dic',ene:'Ene',feb:'Feb',mar:'Mar 1-5'};
-  const sub=S.months.size===MK.length?'Todos los períodos':[...MK.filter(k=>S.months.has(k))].map(k=>names[k]).join(', ');
-  document.getElementById('consumoSubtitle').textContent=sub+' · Clic en leyenda para filtrar productos';
-}
-document.querySelectorAll('.mpill').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    const m=btn.dataset.m;
-    if(m==='all'){
-      /* Seleccionar todos */
-      MK.forEach(k=>S.months.add(k));
-      document.querySelectorAll('.mpill').forEach(b=>b.classList.add('on'));
-    } else {
-      if(S.months.has(m)){
-        if(S.months.size===1)return; /* siempre al menos 1 */
-        S.months.delete(m);
-        btn.classList.remove('on');
-        document.getElementById('pillAll')?.classList.remove('on');
+      <!-- LEYENDA -->
+      <div class="leyenda-mp" style="font-size:6.5pt;margin:0.5mm 0;">Temperatura de refrigeracion: 0-8 &deg;C</div>
+
+      <!-- GRAFICO (sin parámetros - MP no tiene) -->
+      <div style="margin-top:0.5mm;text-align:center;">
+        <div style="font-size:7pt;font-weight:700;margin-bottom:0.5mm;color:#000;">TEMPERATURA C&Aacute;MARA DE MP (&deg;C)</div>
+        <div class="mp-chart-wrap" style="max-width:70%;margin:0 auto;">
+          <canvas id="chartCamaraMP"></canvas>
+        </div>
+      </div>
+
+      <!-- FIRMAS — más abajo, usar todo el espacio -->
+      <div class="firmas" style="margin-top:16mm;">
+        <div class="firma">
+          <div class="firma-line">&nbsp;</div>
+          <div class="firma-nombre" id="firmaInspectorMP">&nbsp;</div>
+          <div class="firma-sub">Inspector de Aseguramiento de la Calidad</div>
+        </div>
+        <div class="firma">
+          <div class="firma-line">&nbsp;</div>
+          <div class="firma-nombre">ANAIS GAMBOA</div>
+          <div class="firma-sub">V°B° Coordinador de SIG</div>
+        </div>
+      </div>
+
+      <!-- PIE -->
+      <div class="footer-doc" style="margin-top:2mm;">
+        DOCUMENTO CONTROLADO PROHIBIDA SU REPRODUCCION SIN AUTORIZACION DE FRUTOS TROPICALES PERU EXPORT S.A.C
+      </div>
+
+    </div><!-- /formMP -->
+
+    <!-- ══════════ FORMAT 3: SALA DE PROCESO ══════════ -->
+    <div class="form-page hidden" id="formProceso">
+
+      <!-- ENCABEZADO -->
+      <div class="hdr-outer">
+        <div class="hdr-top">
+          <div class="hdr-logo">
+            <img src="logo2.png" alt="Frutos Tropicales">
+          </div>
+          <div class="hdr-title">CONTROL DE TEMPERATURA DE SALA DE PROCESO</div>
+          <div class="hdr-code">
+            <span>Codigo :</span> FTP.ACC.FRT.13.059<br>
+            <span>Version:</span> 02<br>
+            <span>Fecha  :</span> 29/01/2026
+          </div>
+        </div>
+        <div class="hdr-bottom">
+          <div class="hdr-cell">
+            <b>FECHA:</b>
+            <span class="hdr-val" id="displayFechaP">&nbsp;</span>
+          </div>
+          <div class="hdr-cell" style="justify-content:center;">
+            <b>FRECUENCIA:</b>&nbsp;Cada hora
+          </div>
+          <div class="hdr-cell" style="border-right:none;border-left:1.5px solid #8b1a1a;">
+            <b>JULIANO:</b>
+            <span class="hdr-val" id="displayJulianoP">&nbsp;</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ACCIONES CORRECTIVAS ARRIBA -->
+      <table style="width:100%;border-collapse:collapse;border:1.5px solid #8b1a1a;border-bottom:none;margin-bottom:0;">
+        <tr>
+          <td style="padding:0;vertical-align:top;width:100%">
+            <div style="border-bottom:1.5px solid #8b1a1a;text-align:center;font-size:8pt;font-weight:900;padding:1.5mm;letter-spacing:0.5px;">
+              ACCIONES CORRECTIVAS</div>
+            <div style="padding:1.5mm 2mm;font-size:6.5pt;line-height:1.5;">
+              En caso de no encontrar los parametros de acuerdo a lo establecido, comunicar de inmediato al jefe de
+              mantenimiento y jefe de aseguramiento de la calidad, y reajustar parametros de temperatura.
+            </div>
+          </td>
+        </tr>
+      </table>
+
+      <!-- TABLA PRINCIPAL PROCESO -->
+      <table class="main-table" id="mainTableP">
+        <thead>
+          <tr>
+            <th class="th-hora" rowspan="2">HORA</th>
+            <th class="th-area">SALA DE ACONDICIONADO</th>
+            <th class="th-area">SALA DE EMBANDEJADO</th>
+            <th class="th-area">SALA DE LAVADO DE BANDEJAS</th>
+            <th class="th-area">SALA DE PRE-ENFRIADO</th>
+            <th class="th-obs" rowspan="2">OBSERVACIONES</th>
+          </tr>
+          <tr>
+            <th class="th-sub">T (&deg;C)</th>
+            <th class="th-sub">T (&deg;C)</th>
+            <th class="th-sub">T (&deg;C)</th>
+            <th class="th-sub">T (&deg;C)</th>
+          </tr>
+        </thead>
+        <tbody id="tableBodyP"></tbody>
+      </table>
+
+      <!-- ACCIONES CORRECTIVAS ABAJO -->
+      <div class="acciones-bottom">
+        <span class="acciones-bottom-title">ACCIONES CORRECTIVAS:</span>
+        <div class="acciones-bottom-lines">
+          <div class="acciones-line" id="acLineP1">&nbsp;</div>
+          <div class="acciones-line" id="acLineP2">&nbsp;</div>
+          <div class="acciones-line" id="acLineP3">&nbsp;</div>
+        </div>
+      </div>
+
+      <!-- GRAFICOS + PARAMETROS -->
+      <div class="chart-pair-wrap" style="display:flex;gap:2mm;align-items:flex-start;margin-top:1mm;overflow:hidden;">
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:7pt;font-weight:700;text-align:center;margin-bottom:1mm;color:#000;">SALA DE ACONDICIONADO (&deg;C)</div>
+          <div style="position:relative;height:80px;overflow:hidden;"><canvas id="chartAcondicionado"></canvas></div>
+        </div>
+        <div style="flex:0 0 auto;font-size:6pt;">
+          <table class="params-table" style="width:auto;">
+            <tr><th colspan="2" class="params-header" style="font-size:6pt;padding:1mm;">PAR&Aacute;METROS</th></tr>
+            <tr><th class="col-header" style="font-size:5.5pt;padding:0.8mm 1.5mm;">ZONA</th><th class="col-header" style="font-size:5.5pt;padding:0.8mm 1.5mm;">RANGO</th></tr>
+            <tr><td style="font-size:5.5pt;padding:0.8mm 1.5mm;">ACONDICIONADO</td><td style="font-size:5.5pt;padding:0.8mm 1.5mm;">14 a 17</td></tr>
+            <tr><td style="font-size:5.5pt;padding:0.8mm 1.5mm;">EMBANDEJADO</td><td style="font-size:5.5pt;padding:0.8mm 1.5mm;">13 a 15</td></tr>
+            <tr><td style="font-size:5.5pt;padding:0.8mm 1.5mm;">LAVADO BAND.</td><td style="font-size:5.5pt;padding:0.8mm 1.5mm;">13 a 15</td></tr>
+            <tr><td style="font-size:5.5pt;padding:0.8mm 1.5mm;">PRE-ENFRIADO</td><td style="font-size:5.5pt;padding:0.8mm 1.5mm;">0 a 10</td></tr>
+          </table>
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:7pt;font-weight:700;text-align:center;margin-bottom:1mm;color:#000;">SALA DE EMBANDEJADO (&deg;C)</div>
+          <div style="position:relative;height:80px;overflow:hidden;"><canvas id="chartEmbandejado"></canvas></div>
+        </div>
+      </div>
+
+      <!-- FIRMAS -->
+      <div class="firmas" style="margin-top:8mm;">
+        <div class="firma">
+          <div class="firma-line">&nbsp;</div>
+          <div class="firma-nombre" id="firmaInspectorNombreP">&nbsp;</div>
+          <div class="firma-sub">Inspector de Aseguramiento de la Calidad</div>
+        </div>
+        <div class="firma">
+          <div class="firma-line">&nbsp;</div>
+          <div class="firma-nombre">ANAIS GAMBOA</div>
+          <div class="firma-sub">V&deg;B&deg; Coordinador de SIG</div>
+        </div>
+      </div>
+
+      <!-- PIE -->
+      <div class="footer-doc">
+        DOCUMENTO CONTROLADO PROHIBIDA SU REPRODUCCION SIN AUTORIZACION DE FRUTOS TROPICALES PERU EXPORT S.A.C
+      </div>
+
+    </div><!-- /formProceso -->
+
+  </div><!-- /preview-wrap -->
+
+  <script>
+    /* ══════════════ SUPABASE CONFIG ══════════════ */
+    const SB_URL = 'https://obnvrfvcujsrmifvlqni.supabase.co';
+    const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9ibnZyZnZjdWpzcm1pZnZscW5pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM1MDY3OTUsImV4cCI6MjA4OTA4Mjc5NX0.A7BilSrDzqe2rqz1Kh8fg5t-GVNxrLGYJK4IaMlVtBs';
+
+    /* ══════════════ AREA MAPS ══════════════ */
+    const AREAS_MAP_EMPAQUE = {
+      'TEMPERATURA PRODUCTO': 'producto',
+      'EMPAQUE': 'empaque',
+      'CAMARA DE PRODUCTO TERMINADO': 'camara',
+      'DESPACHO': 'despacho',
+    };
+
+    const AREAS_MAP_MP = {
+      'CAMARA MP': 'camara_mp',
+      'CAMARA DE MATERIA PRIMA': 'camara_mp',
+      'PRODUCTO MP': 'producto_mp',
+      'TEMPERATURA DE PRODUCTO(MP)': 'producto_mp',
+      'REEFER 1': 'reefer1',
+      'REEFER 2': 'reefer2',
+      'REEFER 3': 'reefer3',
+      'REEFER 4': 'reefer4',
+      'REEFER 5': 'reefer5',
+      'REEFER 6': 'reefer6',
+      'REEFER 7': 'reefer7',
+      'REEFER 8': 'reefer8',
+      'REEFER 9': 'reefer9',
+      'REEFER 10': 'reefer10',
+    };
+
+    const MP_COLUMNS = [
+      'camara_mp', 'producto_mp',
+      'reefer1', 'reefer2', 'reefer3', 'reefer4', 'reefer5',
+      'reefer6', 'reefer7', 'reefer8', 'reefer9', 'reefer10'
+    ];
+
+    const AREAS_MAP_PROCESO = {
+      'ACONDICIONADO': 'acondicionado',
+      'EMBANDEJADO': 'embandejado',
+      'LAVADO DE BANDEJAS': 'lavado',
+      'PRE-ENFRIADO': 'preenfriado'
+    };
+
+    const PROCESO_COLUMNS = ['acondicionado', 'embandejado', 'lavado', 'preenfriado'];
+
+    /* ══════════════ STATE ══════════════ */
+    let activeFormat = localStorage.getItem('reporteFrioFormat') || 'materia-prima';
+
+    /* ══════════════ HELPERS ══════════════ */
+    function getDayOfYear(date) {
+      const start = new Date(date.getFullYear(), 0, 0);
+      return Math.floor((date - start) / 86400000);
+    }
+
+    function formatFecha(str) {
+      const [y, m, d] = str.split('-');
+      return d + '/' + m + '/' + y;
+    }
+
+    function getHorasForTurno(turno) {
+      const horas = [];
+      if (turno === 'DIA') {
+        for (let h = 6; h <= 17; h++) horas.push(String(h).padStart(2, '0') + ':00');
       } else {
-        S.months.add(m);
-        btn.classList.add('on');
-        if(S.months.size===MK.length) document.getElementById('pillAll')?.classList.add('on');
+        for (let h = 18; h <= 23; h++) horas.push(String(h).padStart(2, '0') + ':00');
+        for (let h = 0; h <= 5; h++) horas.push(String(h).padStart(2, '0') + ':00');
+      }
+      return horas;
+    }
+
+    /* ══════════════ THEME ══════════════ */
+    function applyTheme() {
+      const theme = localStorage.getItem('reporteFrioTheme') || 'dark';
+      if (theme === 'light') {
+        document.body.classList.add('light-mode');
+      } else {
+        document.body.classList.remove('light-mode');
       }
     }
-    buildConsumo();
-    updateConsumoSubtitle();
-  });
-});
 
-/* ════════════ HERO — SEMÁFORO ════════════ */
-function setUTab(u){
-  S.heroTab=u;
-  document.querySelectorAll('.utab[data-u]').forEach(b=>b.classList.toggle('active',b.dataset.u===u));
-  buildHero();
-}
-function buildHero(){
-  const t=th();
-  const subset=S.heroTab==='all'?D:D.filter(p=>p.und===S.heroTab);
-  const sorted=[...subset].sort((a,b)=>(dias(a)??999)-(dias(b)??999));
-  const N=sorted.length;
-  const barH=22, minH=400;
-  const h=Math.max(minH, N*barH+80);
-  document.getElementById('heroWrap').style.height=h+'px';
+    function toggleTheme() {
+      const current = localStorage.getItem('reporteFrioTheme') || 'dark';
+      const next = current === 'dark' ? 'light' : 'dark';
+      localStorage.setItem('reporteFrioTheme', next);
+      applyTheme();
+    }
 
-  const diasArr=sorted.map(p=>dias(p));
-  const maxD=Math.max(...diasArr.filter(v=>v!==null),60);
-  const bgs=sorted.map(p=>{
-    const st=status(p),base=st.color;
-    const sel=S.sel===null||S.sel===p.id;
-    if(base.startsWith('rgba'))return base.replace(/[\d.]+\)$/,sel?'.25)':'.08)');
-    return base+(sel?'CC':'28');
-  });
-  const cfg={
-    type:'bar',
-    data:{
-      labels:sorted.map(p=>p.n),
-      datasets:[
-        {
-          label:'Días',
-          data:diasArr.map(d=>d??0),
-          backgroundColor:bgs,
-          borderColor:bgs.map(c=>c.replace('CC','FF').replace('28','55')),
-          borderWidth:sorted.map(p=>S.sel===p.id?2.5:.5),
-          borderRadius:4,
-        },
-        {
-          label:'Meta 30d',
-          data:sorted.map(()=>30),
-          type:'line',borderColor:'rgba(128,128,128,.2)',borderWidth:1.5,
-          borderDash:[5,4],pointRadius:0,fill:false,datalabels:{display:false},order:0,
+    /* ══════════════ FORMAT SWITCHING ══════════════ */
+    function switchFormat(format) {
+      activeFormat = format;
+      localStorage.setItem('reporteFrioFormat', format);
+
+      const tabE = document.getElementById('tabEmpaque');
+      const tabMP = document.getElementById('tabMP');
+      const tabP = document.getElementById('tabProceso');
+      const formE = document.getElementById('formEmpaque');
+      const formMP = document.getElementById('formMP');
+      const formP = document.getElementById('formProceso');
+
+      tabE.classList.remove('active');
+      tabMP.classList.remove('active');
+      tabP.classList.remove('active');
+      formE.classList.add('hidden');
+      formMP.classList.add('hidden');
+      formP.classList.add('hidden');
+
+      if (format === 'empaque') {
+        tabE.classList.add('active');
+        formE.classList.remove('hidden');
+      } else if (format === 'materia-prima') {
+        tabMP.classList.add('active');
+        formMP.classList.remove('hidden');
+      } else if (format === 'proceso') {
+        tabP.classList.add('active');
+        formP.classList.remove('hidden');
+      }
+    }
+
+    /* ══════════════ PRINT ══════════════ */
+    function imprimirFormato() {
+      /* Inject dynamic @page rule for landscape if MP */
+      let styleTag = document.getElementById('printPageStyle');
+      if (!styleTag) {
+        styleTag = document.createElement('style');
+        styleTag.id = 'printPageStyle';
+        document.head.appendChild(styleTag);
+      }
+
+      document.body.classList.remove('print-mp', 'print-empaque', 'print-proceso');
+
+      if (activeFormat === 'materia-prima') {
+        document.body.classList.add('print-mp');
+        styleTag.textContent = '@media print { @page { size: landscape; margin: 5mm; } }';
+      } else if (activeFormat === 'proceso') {
+        document.body.classList.add('print-proceso');
+        styleTag.textContent = '@media print { @page { size: A4 portrait; margin: 0; } }';
+      } else {
+        document.body.classList.add('print-empaque');
+        styleTag.textContent = '@media print { @page { size: A4 portrait; margin: 0; } }';
+      }
+
+      setTimeout(function() { window.print(); }, 100);
+    }
+
+    /* ══════════════ LOAD DATA ══════════════ */
+    async function cargarDatos() {
+      const fecha = document.getElementById('ctrlFecha').value;
+      const turno = document.getElementById('ctrlTurno').value;
+      const inspector = document.getElementById('ctrlInspector').value;
+      const msg = document.getElementById('statusMsg');
+
+      if (!fecha) {
+        msg.textContent = 'Selecciona una fecha.';
+        return;
+      }
+
+      const dateObj = new Date(fecha + 'T12:00:00');
+      const fechaFormatted = formatFecha(fecha);
+      const juliano = getDayOfYear(dateObj);
+
+      /* Update ONLY the active format header fields */
+      const formatNames = {
+        'materia-prima': 'Cámaras de Materia Prima',
+        'proceso': 'Sala de Proceso',
+        'empaque': 'Sala de Empaque'
+      };
+
+      if (activeFormat === 'empaque') {
+        document.getElementById('displayFechaE').textContent = fechaFormatted;
+        document.getElementById('displayJulianoE').textContent = juliano;
+        document.getElementById('firmaInspectorE').textContent = inspector;
+      } else if (activeFormat === 'materia-prima') {
+        document.getElementById('displayFechaMP').textContent = fechaFormatted;
+        document.getElementById('displayJulianoMP').textContent = juliano;
+        document.getElementById('firmaInspectorMP').textContent = inspector;
+      } else if (activeFormat === 'proceso') {
+        document.getElementById('displayFechaP').textContent = fechaFormatted;
+        document.getElementById('displayJulianoP').textContent = juliano;
+        document.getElementById('firmaInspectorNombreP').textContent = inspector;
+      }
+
+      msg.textContent = 'Cargando datos de ' + formatNames[activeFormat] + '...';
+
+      try {
+        const res = await fetch(
+          SB_URL + '/rest/v1/registros_temperatura?fecha=eq.' + fecha + '&order=hora.asc',
+          { headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY } }
+        );
+        let data = res.ok ? await res.json() : [];
+
+        /* Filter by turno */
+        data = data.filter(function(r) {
+          const h = parseInt(r.hora.split(':')[0]);
+          return turno === 'DIA' ? (h >= 6 && h <= 17) : (h >= 18 || h <= 5);
+        });
+
+        /* Only build the active format table */
+        let totalRegs = 0;
+        if (activeFormat === 'empaque') {
+          const areas = Object.keys(AREAS_MAP_EMPAQUE);
+          const filtered = data.filter(function(r) { return areas.indexOf(r.area) !== -1; });
+          buildTableEmpaque(filtered, turno);
+          totalRegs = filtered.length;
+        } else if (activeFormat === 'materia-prima') {
+          const areas = Object.keys(AREAS_MAP_MP);
+          const filtered = data.filter(function(r) { return areas.indexOf(r.area) !== -1; });
+          buildTableMP(filtered, turno);
+          totalRegs = filtered.length;
+        } else if (activeFormat === 'proceso') {
+          const areas = Object.keys(AREAS_MAP_PROCESO);
+          const filtered = data.filter(function(r) { return areas.indexOf(r.area) !== -1; });
+          buildTableProceso(filtered, turno);
+          totalRegs = filtered.length;
         }
-      ]
-    },
-    options:{
-      indexAxis:'y',responsive:true,maintainAspectRatio:false,
-      layout:{padding:{right:50}},
-      plugins:{
-        legend:{display:false},
-        tooltip:{
-          backgroundColor:t.ttBg,bodyColor:t.ttCol,titleColor:t.ttCol,
-          padding:11,borderColor:t.ttBdr,borderWidth:1,
-          callbacks:{
-            title:c=>[c[0].label,''],
-            label:c=>{
-              if(c.datasetIndex===1)return' Meta: 30 días';
-              const p=sorted[c.dataIndex],d=dias(p);
-              return[' Stock: '+fmtQ(p),' Gasto/mes: '+p.gasto+' '+p.und,' Días: '+(d!==null?d+'d':'sin datos')];
+
+        msg.textContent = totalRegs + ' registros cargados - ' + formatNames[activeFormat] + ' - ' + fechaFormatted + ' - Turno ' + turno;
+      } catch (e) {
+        msg.textContent = 'Error: ' + e.message;
+      }
+    }
+
+    /* ══════════════ BUILD TABLE: EMPAQUE ══════════════ */
+    function buildTableEmpaque(data, turno) {
+      const horas = getHorasForTurno(turno);
+
+      /* Organize by hour and area */
+      const byHora = {};
+      data.forEach(function(r) {
+        const hh = r.hora.slice(0, 2);
+        if (!byHora[hh]) byHora[hh] = {};
+        const col = AREAS_MAP_EMPAQUE[r.area];
+        if (col && !byHora[hh][col]) byHora[hh][col] = r;
+      });
+
+      const tbody = document.getElementById('tableBodyE');
+      tbody.innerHTML = '';
+
+      horas.forEach(function(hora) {
+        const hh = hora.slice(0, 2);
+        const regs = byHora[hh] || {};
+        const tr = document.createElement('tr');
+
+        /* Hora */
+        const tdH = document.createElement('td');
+        tdH.className = 'hora-cell';
+        tdH.textContent = hora;
+        tr.appendChild(tdH);
+
+        /* 4 temperature columns */
+        ['producto', 'empaque', 'camara', 'despacho'].forEach(function(col) {
+          const td = document.createElement('td');
+          const r = regs[col];
+          if (r) {
+            td.textContent = r.temperatura + '\u00B0C';
+          } else {
+            td.textContent = '';
+          }
+          tr.appendChild(td);
+        });
+
+        /* Observaciones */
+        const tdO = document.createElement('td');
+        tdO.className = 'obs-cell';
+        const obsTexts = Object.values(regs)
+          .filter(function(r) { return r && r.observaciones && r.observaciones.trim(); })
+          .map(function(r) { return r.observaciones.trim(); }).join(' / ');
+        tdO.textContent = obsTexts;
+        tr.appendChild(tdO);
+
+        tbody.appendChild(tr);
+      });
+
+      /* Clear acciones lines */
+      ['acLineE1', 'acLineE2', 'acLineE3'].forEach(function(id) {
+        document.getElementById(id).textContent = ' ';
+      });
+
+      /* Build Empaque charts */
+      buildChartsEmpaque(horas, byHora);
+    }
+
+    /* ══════════════ BUILD TABLE: MATERIA PRIMA ══════════════ */
+    function buildTableMP(data, turno) {
+      const horas = getHorasForTurno(turno);
+
+      /* Organize by hour and area */
+      const byHora = {};
+      data.forEach(function(r) {
+        const hh = r.hora.slice(0, 2);
+        if (!byHora[hh]) byHora[hh] = {};
+        const col = AREAS_MAP_MP[r.area];
+        if (col && !byHora[hh][col]) byHora[hh][col] = r;
+      });
+
+      const tbody = document.getElementById('tableBodyMP');
+      tbody.innerHTML = '';
+
+      horas.forEach(function(hora) {
+        const hh = hora.slice(0, 2);
+        const regs = byHora[hh] || {};
+        const tr = document.createElement('tr');
+
+        /* Hora */
+        const tdH = document.createElement('td');
+        tdH.className = 'hora-cell';
+        tdH.textContent = hora;
+        tr.appendChild(tdH);
+
+        /* 12 temperature columns */
+        MP_COLUMNS.forEach(function(col) {
+          const td = document.createElement('td');
+          const r = regs[col];
+          if (r) {
+            td.textContent = r.temperatura + '\u00B0C';
+          } else {
+            td.textContent = '';
+          }
+          tr.appendChild(td);
+        });
+
+        /* Observaciones */
+        const tdO = document.createElement('td');
+        tdO.className = 'obs-cell';
+        const obsTexts = Object.values(regs)
+          .filter(function(r) { return r && r.observaciones && r.observaciones.trim(); })
+          .map(function(r) { return r.observaciones.trim(); }).join(' / ');
+        tdO.textContent = obsTexts;
+        tr.appendChild(tdO);
+
+        tbody.appendChild(tr);
+      });
+
+      /* Clear acciones lines */
+      ['acLineMP1', 'acLineMP2', 'acLineMP3'].forEach(function(id) {
+        document.getElementById(id).textContent = ' ';
+      });
+
+      /* Build Cámara MP chart */
+      buildChartCamaraMP(horas, byHora);
+    }
+
+    /* ══════════════ CHART INSTANCES STORE ══════════════ */
+    var chartInstances = {};
+
+    /* ══════════════ GENERIC CHART HELPER ══════════════ */
+    function createTempChart(canvasId, label, data, labels, lowerLimit, upperLimit, lineColor) {
+      var canvas = document.getElementById(canvasId);
+      if (!canvas) return;
+      if (chartInstances[canvasId]) { chartInstances[canvasId].destroy(); }
+
+      /* Short hour labels: 08:00 → 08 */
+      var shortLabels = labels.map(function(l) { return l.replace(':00',''); });
+
+      /* Dynamic Y-axis: -4 from min data or limit */
+      var validTemps = data.filter(function(v) { return v !== null && v !== undefined; });
+      var dataMin = validTemps.length ? Math.min.apply(null, validTemps) : lowerLimit;
+      var dataMax = validTemps.length ? Math.max.apply(null, validTemps) : upperLimit;
+      var yMin = Math.floor(Math.min(dataMin, lowerLimit) - 4);
+      var yMax = Math.ceil(Math.max(dataMax, upperLimit) + 2);
+
+      /* Point colors: RED if out of range */
+      var pointColors = data.map(function(t) {
+        if (t === null || t === undefined) return '#94a3b8';
+        return (t >= lowerLimit && t <= upperLimit) ? lineColor : '#dc2626';
+      });
+      var pointBorderColors = data.map(function(t) {
+        if (t === null || t === undefined) return '#94a3b8';
+        return (t >= lowerLimit && t <= upperLimit) ? '#000' : '#dc2626';
+      });
+
+      chartInstances[canvasId] = new Chart(canvas, {
+        type: 'line',
+        data: {
+          labels: shortLabels,
+          datasets: [{
+            label: label,
+            data: data,
+            borderColor: '#000',
+            backgroundColor: 'rgba(0,0,0,0.03)',
+            borderWidth: 1.5,
+            pointBackgroundColor: pointColors,
+            pointBorderColor: pointBorderColors,
+            pointBorderWidth: 1.5,
+            pointRadius: 4,
+            pointStyle: 'rectRot',
+            fill: false,
+            tension: 0.3,
+            spanGaps: true
+          }, {
+            label: 'Sup ' + upperLimit + '\u00B0C',
+            data: shortLabels.map(function() { return upperLimit; }),
+            borderColor: '#dc2626',
+            borderWidth: 1.5,
+            borderDash: [6, 3],
+            pointRadius: 0,
+            fill: false
+          }, {
+            label: 'Inf ' + lowerLimit + '\u00B0C',
+            data: shortLabels.map(function() { return lowerLimit; }),
+            borderColor: '#2563eb',
+            borderWidth: 1.5,
+            borderDash: [6, 3],
+            pointRadius: 0,
+            fill: false
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            x: {
+              title: { display: true, text: 'Hora', font: { size: 7, weight: 'bold' }, color: '#000' },
+              ticks: { font: { size: 7, weight: 'bold' }, color: '#000', maxRotation: 0 },
+              grid: { color: 'rgba(0,0,0,0.08)' }
+            },
+            y: {
+              title: { display: true, text: 'Temperatura (\u00B0C)', font: { size: 7, weight: 'bold' }, color: '#000' },
+              ticks: { font: { size: 7, weight: 'bold' }, color: '#000', callback: function(v) { return v + '\u00B0C'; } },
+              grid: { color: 'rgba(0,0,0,0.08)' },
+              suggestedMin: yMin,
+              suggestedMax: yMax
             }
           }
         },
-        datalabels:{
-          display:c=>c.datasetIndex===0,
-          color:c=>S.sel===null||S.sel===sorted[c.dataIndex]?.id?t.lblCol:'transparent',
-          font:{size:10,weight:'700'},
-          anchor:'end',align:'right',offset:4,clamp:false,
-          formatter:(v,c)=>{const d=dias(sorted[c.dataIndex]);return d!==null?d+'d':'—'},
-        }
-      },
-      scales:{
-        x:{max:maxD*1.28,grid:{color:t.grid},ticks:{color:t.tick,font:{size:9},callback:v=>v+'d'},
-          title:{display:true,text:'Días de stock disponibles',color:t.tick,font:{size:10}}},
-        y:{grid:{display:false},ticks:{color:t.tick,font:{size:10}}}
-      },
-      onClick(evt,elems){
-        if(!elems.length||elems[0].datasetIndex!==0)S.sel=null;
-        else{const p=sorted[elems[0].index];S.sel=S.sel===p.id?null:p.id}
-        buildHero();buildStock();buildTable();showDetail();
-      },
-      animation:{duration:250}
-    }
-  };
-  if(charts.hero)charts.hero.destroy();
-  charts.hero=new Chart(document.getElementById('cHero'),cfg);
-}
-
-/* ════════════ CONSUMO ════════════ */
-function buildConsumo(){
-  const t=th();
-  const vp=D.filter(p=>p.total>0);
-  const activeMes=MK.filter(k=>S.months.has(k));
-
-  /* calcular max para dar espacio a labels */
-  const maxVal=Math.max(...vp.flatMap(p=>
-    S.stacked
-      ? [activeMes.reduce((s,k)=>s+p.m[k],0)]
-      : activeMes.map(k=>p.m[k])
-  ),1);
-
-  /* min-width del contenedor según nº productos */
-  const minW=Math.max(480, vp.length*activeMes.length*18+120);
-  document.getElementById('consumoWrap').style.minWidth=minW+'px';
-
-  const datasets=activeMes.map(k=>({
-    label:ML[MK.indexOf(k)],
-    data:vp.map(p=>p.m[k]),
-    backgroundColor:MC[k]+'AA',
-    borderColor:MC[k],
-    borderWidth:.8,
-    borderRadius:4,
-    stack:S.stacked?'stack':undefined,
-    datalabels:{
-      display:ctx=>S.labels&&ctx.raw>0,
-      color:t.lblCol,
-      font:{size:S.stacked?9:8,weight:'800'},
-      anchor:S.stacked?'center':'end',
-      align:S.stacked?'center':'top',
-      offset:S.stacked?0:2,
-      clamp:false,
-      formatter:v=>v>=1?(v%1?v.toFixed(1):v):(v>0?v.toFixed(1):''),
-    }
-  }));
-
-  /* dataset total invisible para stacked */
-  if(S.stacked){
-    const totals=vp.map(p=>activeMes.reduce((s,k)=>s+(p.m[k]||0),0));
-    datasets.push({
-      label:'_total',
-      data:totals,
-      backgroundColor:'rgba(0,0,0,0)',
-      borderWidth:0,
-      stack:'stack',
-      datalabels:{
-        display:c=>S.labels&&c.raw>0,
-        color:t.totalCol,
-        font:{size:11,weight:'900'},
-        anchor:'end',align:'top',offset:4,clamp:false,
-        formatter:v=>v>0?v:'',
-      }
-    });
-  }
-
-  /* dataset total flotante para modo agrupado */
-  if(!S.stacked){
-    const totalData=vp.map(p=>activeMes.reduce((s,k)=>s+(p.m[k]||0),0));
-    const floatData=vp.map(p=>Math.max(...activeMes.map(k=>p.m[k]||0),0));
-    datasets.push({
-      label:'_total',
-      data:floatData,
-      backgroundColor:'rgba(0,0,0,0)',
-      borderWidth:0,
-      datalabels:{
-        display:c=>S.labels&&totalData[c.dataIndex]>0,
-        color:t.totalCol,
-        font:{size:11,weight:'900'},
-        anchor:'end',align:'top',offset:4,clamp:false,
-        formatter:(v,c)=>{const tot=totalData[c.dataIndex];return tot>0?tot:''},
-      }
-    });
-  }
-
-  const cfg={
-    type:'bar',
-    data:{labels:vp.map(p=>p.n),datasets},
-    options:{
-      responsive:true,maintainAspectRatio:false,
-      clip:false,
-      layout:{padding:{top:28,right:10,bottom:5}},
-      plugins:{
-        legend:{
-          position:'bottom',
-          labels:{color:t.lgnd,font:{size:11},boxWidth:10,padding:8,
-            filter:item=>!item.text.startsWith('_')},
-        },
-        tooltip:{
-          backgroundColor:t.ttBg,bodyColor:t.ttCol,titleColor:t.ttCol,
-          padding:10,borderColor:t.ttBdr,borderWidth:1,
-          callbacks:{
-            footer:ctxArr=>{
-              if(S.stacked)return[];
-              const sum=ctxArr.reduce((s,c)=>s+c.raw,0);
-              return sum>0?['──────','Total: '+sum+(vp[ctxArr[0].dataIndex]?.und==='KG'?' kg':' und')]:[];
-            }
+        plugins: [{
+          id: 'tempLabels',
+          afterDatasetsDraw: function(chart) {
+            var ctx = chart.ctx;
+            var dataset = chart.data.datasets[0];
+            var meta = chart.getDatasetMeta(0);
+            var lo = lowerLimit, hi = upperLimit;
+            dataset.data.forEach(function(value, index) {
+              if (value === null || value === undefined) return;
+              var point = meta.data[index];
+              if (!point) return;
+              ctx.save();
+              ctx.font = 'bold 7px Arial';
+              var outOfRange = (value < lo || value > hi);
+              ctx.fillStyle = outOfRange ? '#dc2626' : '#000';
+              ctx.textAlign = 'center';
+              ctx.fillText(Number(value).toFixed(1), point.x, point.y - 8);
+              ctx.restore();
+            });
           }
-        },
-        datalabels:{} /* handled per dataset */
-      },
-      scales:{
-        x:{stacked:S.stacked,grid:{color:t.grid},ticks:{color:t.tick,font:{size:10}}},
-        y:{
-          stacked:S.stacked,
-          max:S.stacked?maxVal*1.22:maxVal*1.28,
-          grid:{color:t.grid},
-          ticks:{color:t.tick,font:{size:9}}
-        }
-      },
-      onClick(evt,elems){
-        if(!elems.length)return;
-        const p=vp[elems[0].index];
-        S.sel=S.sel===p.id?null:p.id;
-        buildHero();buildStock();buildTable();showDetail();
-      },
-      animation:{duration:220}
-    }
-  };
-  if(charts.consumo)charts.consumo.destroy();
-  charts.consumo=new Chart(document.getElementById('cConsumo'),cfg);
-}
-
-/* ════════════ STOCK ACTUAL ════════════ */
-function setStockTab(u){
-  S.stockTab=u;
-  document.querySelectorAll('#stockTabs .utab').forEach(b=>b.classList.toggle('active',b.dataset.su===u));
-  buildStock();
-}
-function buildStock(){
-  const t=th();
-  const sub=D.filter(p=>p.und===S.stockTab);
-  const color=undColorRaw(S.stockTab);
-  document.getElementById('stockWrap').style.minWidth=Math.max(300,sub.length*22+100)+'px';
-  const bgs=sub.map(p=>(S.sel===null||S.sel===p.id)?color+'BB':color+'25');
-  const cfg={
-    type:'bar',
-    data:{
-      labels:sub.map(p=>p.n),
-      datasets:[{
-        label:'Stock',
-        data:sub.map(p=>p.stock),
-        backgroundColor:bgs,
-        borderColor:sub.map(p=>S.sel===p.id?color+'FF':color+'55'),
-        borderWidth:sub.map(p=>S.sel===p.id?2.5:.5),
-        borderRadius:4,
-      }]
-    },
-    options:{
-      indexAxis:'y',responsive:true,maintainAspectRatio:false,
-      clip:false,
-      layout:{padding:{right:65}},
-      plugins:{
-        legend:{display:false},
-        tooltip:{backgroundColor:t.ttBg,bodyColor:t.ttCol,padding:10,borderColor:t.ttBdr,borderWidth:1,
-          callbacks:{label:c=>' Stock: '+c.raw.toFixed(c.raw%1?2:0)+' '+S.stockTab}},
-        datalabels:{
-          display:S.labels,
-          color:c=>S.sel===null||S.sel===sub[c.dataIndex]?.id?t.lblCol:'transparent',
-          font:{size:10,weight:'700'},anchor:'end',align:'right',offset:4,clamp:false,
-          formatter:v=>v%1?v.toFixed(2):v,
-        }
-      },
-      scales:{
-        x:{max:Math.max(...sub.map(p=>p.stock),1)*1.25,grid:{color:t.grid},ticks:{color:t.tick,font:{size:9}}},
-        y:{grid:{display:false},ticks:{color:t.tick,font:{size:10.5}}}
-      },
-      onClick(evt,elems){
-        if(!elems.length)S.sel=null;
-        else{const p=sub[elems[0].index];S.sel=S.sel===p.id?null:p.id}
-        buildHero();buildStock();buildTable();showDetail();
-      },
-      animation:{duration:220}
-    }
-  };
-  if(charts.stock)charts.stock.destroy();
-  charts.stock=new Chart(document.getElementById('cStock'),cfg);
-}
-
-/* ════════════ DETAIL PANEL ════════════ */
-function showDetail(){
-  const dpE=document.getElementById('dpEmpty'),dpC=document.getElementById('dpContent');
-  const t=th();
-  if(S.sel===null){dpE.style.display='flex';dpC.style.display='none';dpC.innerHTML='';return}
-  const p=D.find(x=>x.id===S.sel);
-  if(!p){dpE.style.display='flex';dpC.style.display='none';return}
-  const st=status(p),d=dias(p),uc=undColorRaw(p.und);
-  const catIcon={Placas:'🔬',Kits:'🧪',Muestreo:'🧫',ATP:'⚡',Medios:'🌱','Soluc. Cloro':'🧴','Soluc. AP':'⚗️','pH Buffers':'📐'}[p.cat]||'📦';
-  const maxStk=Math.max(...D.filter(x=>x.und===p.und).map(x=>x.stock),1);
-  const pct=Math.min(p.stock/maxStk*100,100);
-  dpE.style.display='none';dpC.style.display='flex';
-  dpC.innerHTML=`
-    <div class="dphead">
-      <div class="dpicon" style="background:${uc}18;border-color:${uc}44">${catIcon}</div>
-      <div style="flex:1;min-width:0">
-        <div class="dpname">${p.full}</div>
-        <div class="dpcat">${p.cat} · <span style="color:${uc}">${p.und}</span></div>
-      </div>
-      <button class="closebtn" onclick="S.sel=null;buildHero();buildStock();buildTable();showDetail()">✕</button>
-    </div>
-    <div class="dp-metrics">
-      <div class="dpm"><div class="dpm-l">Stock Actual</div><div class="dpm-v" style="color:${uc}">${fmtQ(p)}</div></div>
-      <div class="dpm"><div class="dpm-l">Días Rest.</div><div class="dpm-v" style="color:${st.color}">${d!==null?d+'d':'—'}</div></div>
-      <div class="dpm"><div class="dpm-l">Gasto/mes Est.</div><div class="dpm-v" style="color:${uc};font-size:17px">${p.gasto} ${p.und}</div></div>
-      <div class="dpm"><div class="dpm-l">Consumo Total</div><div class="dpm-v" style="color:${uc};font-size:17px">${p.total?fmtQ(p,p.total):'Sin datos'}</div></div>
-    </div>
-    <div>
-      <div style="font-size:10px;color:var(--ts);margin-bottom:4px;display:flex;justify-content:space-between">
-        <span>Stock relativo al mismo tipo</span><strong style="color:${uc}">${Math.round(pct)}%</strong>
-      </div>
-      <div class="dp-bar-track"><div class="dp-bar-fill" style="width:${pct}%;background:${uc}"></div></div>
-    </div>
-    ${p.total>0?`
-    <div style="font-size:11px;font-weight:700;color:var(--tm)">Consumo mensual:</div>
-    <div style="position:relative;height:120px;flex-shrink:0"><canvas id="dpChart"></canvas></div>
-    `:`<div style="background:var(--card);border:1px solid var(--cb);border-radius:9px;padding:12px;font-size:11px;color:var(--tm);text-align:center">
-      📋 Sin datos de consumo en el período Dic 2025 – Mar 2026</div>`}
-    <div class="dp-status ${st.dcls}">${st.lbl}</div>
-  `;
-  if(p.total>0){
-    new Chart(document.getElementById('dpChart'),{
-      type:'bar',
-      data:{
-        labels:ML,
-        datasets:[{
-          data:MK.map(k=>p.m[k]),
-          backgroundColor:MK.map(k=>MC[k]+(S.months.has(k)?'AA':'33')),
-          borderColor:MK.map(k=>MC[k]),
-          borderWidth:MK.map(k=>S.months.has(k)?1.5:.5),
-          borderRadius:4,
         }]
-      },
-      options:{
-        responsive:true,maintainAspectRatio:false,
-        clip:false,layout:{padding:{top:22}},
-        plugins:{
-          legend:{display:false},
-          tooltip:{backgroundColor:t.ttBg,bodyColor:t.ttCol,padding:8,borderColor:t.ttBdr,borderWidth:1},
-          datalabels:{
-            display:true,color:t.lblCol,font:{size:9,weight:'700'},
-            anchor:'end',align:'top',offset:2,clamp:false,
-            formatter:v=>v>0?(v%1?v.toFixed(1):v):'',
+      });
+    }
+
+    /* ══════════════ CHART: CÁMARA MP (B/N para impresión) ══════════════ */
+    function buildChartCamaraMP(horas, byHora) {
+      var labels = horas.map(function(h) { return h; });
+      var temps = horas.map(function(hora) {
+        var hh = hora.slice(0, 2);
+        var regs = byHora[hh] || {};
+        var r = regs['camara_mp'];
+        return r ? r.temperatura : null;
+      });
+      createTempChartBW('chartCamaraMP', 'Camara MP', temps, labels, 0, 8);
+    }
+
+    /* Chart especial B/N para MP — impresión blanco y negro */
+    function createTempChartBW(canvasId, label, data, labels, lowerLimit, upperLimit) {
+      var canvas = document.getElementById(canvasId);
+      if (!canvas) return;
+      if (chartInstances[canvasId]) { chartInstances[canvasId].destroy(); }
+      var shortLabels = labels.map(function(l) { return l.replace(':00',''); });
+      var validTemps = data.filter(function(v) { return v !== null && v !== undefined; });
+      var dataMin = validTemps.length ? Math.min.apply(null, validTemps) : lowerLimit;
+      var dataMax = validTemps.length ? Math.max.apply(null, validTemps) : upperLimit;
+      var yMin = Math.floor(Math.min(dataMin, lowerLimit) - 4);
+      var yMax = Math.ceil(Math.max(dataMax, upperLimit) + 2);
+
+      /* Todo en negro para B/N */
+      var pointStyles = data.map(function(t) {
+        if (t === null || t === undefined) return 'circle';
+        return (t >= lowerLimit && t <= upperLimit) ? 'rectRot' : 'triangle';
+      });
+
+      chartInstances[canvasId] = new Chart(canvas, {
+        type: 'line',
+        data: {
+          labels: shortLabels,
+          datasets: [{
+            label: label, data: data,
+            borderColor: '#000', backgroundColor: 'rgba(0,0,0,0.03)',
+            borderWidth: 1.5,
+            pointBackgroundColor: '#000', pointBorderColor: '#000',
+            pointBorderWidth: 1.5, pointRadius: 4,
+            pointStyle: pointStyles,
+            fill: false, tension: 0.3, spanGaps: true
+          }, {
+            label: 'Sup ' + upperLimit + '\u00B0C',
+            data: shortLabels.map(function() { return upperLimit; }),
+            borderColor: '#000', borderWidth: 1, borderDash: [6, 3],
+            pointRadius: 0, fill: false
+          }, {
+            label: 'Inf ' + lowerLimit + '\u00B0C',
+            data: shortLabels.map(function() { return lowerLimit; }),
+            borderColor: '#000', borderWidth: 1, borderDash: [3, 3],
+            pointRadius: 0, fill: false
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false, animation: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { title: { display: true, text: 'Hora', font: { size: 8, weight: 'bold' }, color: '#000' }, ticks: { font: { size: 8, weight: 'bold' }, color: '#000', maxRotation: 0 }, grid: { color: 'rgba(0,0,0,0.1)' } },
+            y: { title: { display: true, text: 'Temperatura (\u00B0C)', font: { size: 8, weight: 'bold' }, color: '#000' }, ticks: { font: { size: 8, weight: 'bold' }, color: '#000', callback: function(v) { return v + '\u00B0C'; } }, grid: { color: 'rgba(0,0,0,0.1)' }, suggestedMin: yMin, suggestedMax: yMax }
           }
         },
-        scales:{
-          x:{grid:{display:false},ticks:{color:t.tick,font:{size:9}}},
-          y:{grid:{color:t.grid},ticks:{color:t.tick,font:{size:8}}}
-        },
-        animation:{duration:180}
-      }
-    });
-  }
-}
+        plugins: [{
+          id: 'tempLabelsBW',
+          afterDatasetsDraw: function(chart) {
+            var ctx = chart.ctx;
+            var dataset = chart.data.datasets[0];
+            var meta = chart.getDatasetMeta(0);
+            dataset.data.forEach(function(value, index) {
+              if (value === null || value === undefined) return;
+              var point = meta.data[index];
+              if (!point) return;
+              ctx.save();
+              ctx.font = 'bold 9px Arial';
+              ctx.fillStyle = '#000';
+              ctx.textAlign = 'center';
+              ctx.fillText(Number(value).toFixed(1), point.x, point.y - 10);
+              ctx.restore();
+            });
+          }
+        }]
+      });
+    }
 
-/* ════════════ TABLE ════════════ */
-function setTF(f){
-  tblFilter=f;
-  ['fAll','fUnd','fKg','fLt'].forEach(id=>document.getElementById(id)?.classList.remove('on'));
-  document.getElementById({all:'fAll',UND:'fUnd',KG:'fKg',LT:'fLt'}[f])?.classList.add('on');
-  buildTable();
-}
-function setSF(f){
-  tblStatus=f;
-  ['fSAll','fSCrit','fSLow','fSOk'].forEach(id=>document.getElementById(id)?.classList.remove('on'));
-  document.getElementById({all:'fSAll',crit:'fSCrit',low:'fSLow',ok:'fSOk'}[f])?.classList.add('on');
-  buildTable();
-}
-function sortTbl(col){
-  const ths=document.querySelectorAll('#mainTable thead th');
-  ths.forEach(th=>{th.className=''});
-  if(S.sortCol===col)S.sortDir*=-1;else{S.sortCol=col;S.sortDir=1}
-  ths[col].className=S.sortDir===1?'sa':'sd';
-  buildTable();
-}
-function buildTable(){
-  const tbody=document.getElementById('tBody');
-  let vp=[...D];
-  if(tblFilter!=='all')vp=vp.filter(p=>p.und===tblFilter);
-  if(tblStatus!=='all')vp=vp.filter(p=>{
-    const k=status(p).key;
-    if(tblStatus==='crit')return k==='crit';
-    if(tblStatus==='low') return k==='low'||k==='mod';
-    if(tblStatus==='ok')  return k==='ok'||k==='none';
-    return true;
-  });
-  if(S.sortCol>=0){
-    const keys=[null,'n','und','stock','gasto',null,'total',null];
-    vp.sort((a,b)=>{
-      if(S.sortCol===5)return S.sortDir*((dias(a)??9999)-(dias(b)??9999));
-      if(S.sortCol===0)return S.sortDir*(a.id-b.id);
-      const k=keys[S.sortCol];if(!k)return 0;
-      return typeof a[k]==='string'?S.sortDir*a[k].localeCompare(b[k]):S.sortDir*(a[k]-b[k]);
-    });
-  }
-  tbody.innerHTML='';
-  vp.forEach((p,i)=>{
-    const st=status(p),d=dias(p);
-    const pct=Math.min((d||0)/90*100,100);
-    const uc=undColorRaw(p.und);
-    const tr=document.createElement('tr');
-    tr.className=S.sel===p.id?'sel':'';
-    tr.innerHTML=`
-      <td style="color:var(--ts)">${i+1}</td>
-      <td style="font-weight:600;font-size:11.5px;max-width:180px">${p.full}</td>
-      <td><span class="utag u-${p.und.toLowerCase()}">${p.und}</span></td>
-      <td style="font-weight:700;color:${uc}">${fmtQ(p)}</td>
-      <td style="color:var(--tm);font-size:11px">${p.gasto} ${p.und}/mes</td>
-      <td><div class="dbar">
-        <span style="font-weight:800;color:${st.color};min-width:28px;font-size:12px">${d!==null?d+'d':'—'}</span>
-        <span class="dtrack"><span class="dfill" style="width:${pct}%;background:${st.color}"></span></span>
-      </div></td>
-      <td style="color:var(--tm);font-size:11px">${p.total?fmtQ(p,p.total):'—'}</td>
-      <td><span class="stag ${st.cls}"><span class="sdot"></span>${st.lbl.split('·')[0].trim()}</span></td>
-    `;
-    tr.onclick=()=>{S.sel=S.sel===p.id?null:p.id;buildHero();buildStock();buildTable();showDetail()};
-    tbody.appendChild(tr);
-  });
-}
+    /* ══════════════ CHARTS: PROCESO ══════════════ */
+    function buildChartsProceso(horas, byHora) {
+      var labels = horas.map(function(h) { return h; });
 
-/* ════════════ TOGGLES ════════════ */
-function toggleLabels(){
-  S.labels=!S.labels;
-  const btn=document.getElementById('btnLbl');
-  btn.classList.toggle('on',S.labels);
-  btn.textContent=S.labels?'🏷 Totales':'🏷 Ocultos';
-  buildConsumo();buildStock();buildHero();
-}
-function toggleStack(){
-  S.stacked=!S.stacked;
-  const btn=document.getElementById('btnSt');
-  btn.classList.toggle('on',S.stacked);
-  btn.textContent=S.stacked?'⧉ Apilado':'⧉ Apilar';
-  buildConsumo();
-}
+      var tempsAcond = horas.map(function(hora) {
+        var hh = hora.slice(0, 2);
+        var regs = byHora[hh] || {};
+        var r = regs['acondicionado'];
+        return r ? r.temperatura : null;
+      });
+      createTempChart('chartAcondicionado', 'Acondicionado', tempsAcond, labels, 14, 17, '#0d9488');
 
-/* ════════════ INIT ════════════ */
-buildHero();buildConsumo();buildStock();buildTable();showDetail();
-</script>
+      var tempsEmband = horas.map(function(hora) {
+        var hh = hora.slice(0, 2);
+        var regs = byHora[hh] || {};
+        var r = regs['embandejado'];
+        return r ? r.temperatura : null;
+      });
+      createTempChart('chartEmbandejado', 'Embandejado', tempsEmband, labels, 13, 15, '#2563eb');
+    }
+
+    /* ══════════════ CHARTS: EMPAQUE ══════════════ */
+    function buildChartsEmpaque(horas, byHora) {
+      var labels = horas.map(function(h) { return h; });
+
+      var tempsEmpaque = horas.map(function(hora) {
+        var hh = hora.slice(0, 2);
+        var regs = byHora[hh] || {};
+        var r = regs['empaque'];
+        return r ? r.temperatura : null;
+      });
+      createTempChart('chartEmpaqueTemp', 'Empaque', tempsEmpaque, labels, 0, 8, '#0d9488');
+
+      var tempsCamara = horas.map(function(hora) {
+        var hh = hora.slice(0, 2);
+        var regs = byHora[hh] || {};
+        var r = regs['camara'];
+        return r ? r.temperatura : null;
+      });
+      createTempChart('chartCamaraPT', 'Camara PT', tempsCamara, labels, -25, -16, '#7c3aed');
+    }
+
+    /* ══════════════ BUILD TABLE: PROCESO ══════════════ */
+    function buildTableProceso(data, turno) {
+      const horas = getHorasForTurno(turno);
+
+      /* Organize by hour and area */
+      const byHora = {};
+      data.forEach(function(r) {
+        const hh = r.hora.slice(0, 2);
+        if (!byHora[hh]) byHora[hh] = {};
+        const col = AREAS_MAP_PROCESO[r.area];
+        if (col && !byHora[hh][col]) byHora[hh][col] = r;
+      });
+
+      const tbody = document.getElementById('tableBodyP');
+      tbody.innerHTML = '';
+
+      horas.forEach(function(hora) {
+        const hh = hora.slice(0, 2);
+        const regs = byHora[hh] || {};
+        const tr = document.createElement('tr');
+
+        /* Hora */
+        const tdH = document.createElement('td');
+        tdH.className = 'hora-cell';
+        tdH.textContent = hora;
+        tr.appendChild(tdH);
+
+        /* 4 temperature columns */
+        PROCESO_COLUMNS.forEach(function(col) {
+          const td = document.createElement('td');
+          const r = regs[col];
+          if (r) {
+            td.textContent = r.temperatura + '\u00B0C';
+          } else {
+            td.textContent = '';
+          }
+          tr.appendChild(td);
+        });
+
+        /* Observaciones */
+        const tdO = document.createElement('td');
+        tdO.className = 'obs-cell';
+        const obsTexts = Object.values(regs)
+          .filter(function(r) { return r && r.observaciones && r.observaciones.trim(); })
+          .map(function(r) { return r.observaciones.trim(); }).join(' / ');
+        tdO.textContent = obsTexts;
+        tr.appendChild(tdO);
+
+        tbody.appendChild(tr);
+      });
+
+      /* Clear acciones lines */
+      ['acLineP1', 'acLineP2', 'acLineP3'].forEach(function(id) {
+        document.getElementById(id).textContent = ' ';
+      });
+
+      /* Build Proceso charts */
+      buildChartsProceso(horas, byHora);
+    }
+
+    /* ══════════════ INIT ══════════════ */
+    window.onload = function() {
+      /* Theme */
+      applyTheme();
+
+      /* Date defaults (Lima timezone) */
+      const now = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Lima' }));
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, '0');
+      const d = String(now.getDate()).padStart(2, '0');
+      document.getElementById('ctrlFecha').value = y + '-' + m + '-' + d;
+
+      const h = now.getHours();
+      document.getElementById('ctrlTurno').value = (h >= 6 && h <= 17) ? 'DIA' : 'NOCHE';
+
+      /* Restore format tab */
+      switchFormat(activeFormat);
+    };
+  </script>
 </body>
+
 </html>
