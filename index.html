@@ -3,2015 +3,972 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Control de Temperaturas · FrutaFría Export</title>
+<title>FTP Export SAC — Sistema de Palítickets</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.5/JsBarcode.all.min.js"></script>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap');
 
   :root {
-    --bg: #0a0f1e;
-    --surface: #111827;
-    --surface2: #1a2235;
-    --border: rgba(255,255,255,0.08);
-    --accent: #00d4aa;
-    --accent2: #3b82f6;
-    --warn: #f59e0b;
-    --danger: #ef4444;
-    --text: #f1f5f9;
-    --muted: #64748b;
-    --success: #10b981;
-  }
-
-  /* MODO CLARO */
-  body.light-mode {
-    --bg: #f0f4f8;
-    --surface: #ffffff;
-    --surface2: #f8fafc;
-    --border: rgba(0,0,0,0.08);
-    --accent: #0d9488;
-    --accent2: #2563eb;
-    --warn: #d97706;
-    --danger: #dc2626;
-    --text: #0f172a;
-    --muted: #64748b;
-    --success: #16a34a;
-  }
-
-  /* SWITCH */
-  .theme-switch {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    cursor: pointer;
-    user-select: none;
-  }
-  .switch-track {
-    position: relative;
-    width: 44px;
-    height: 24px;
-    background: #334155;
-    border-radius: 12px;
-    transition: background 0.3s;
-    flex-shrink: 0;
-  }
-  body.light-mode .switch-track {
-    background: #cbd5e1;
-  }
-  .switch-thumb {
-    position: absolute;
-    top: 3px;
-    left: 3px;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    background: #00d4aa;
-    transition: transform 0.3s, background 0.3s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 11px;
-  }
-  body.light-mode .switch-thumb {
-    transform: translateX(20px);
-    background: #f59e0b;
-  }
-  .switch-label {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--muted);
-    white-space: nowrap;
+    --verde: #1a6b2f;
+    --verde-claro: #2d9948;
+    --amarillo: #f5c518;
+    --naranja: #e8720c;
+    --fondo: #0d1a0f;
+    --fondo2: #142018;
+    --fondo3: #1c2d20;
+    --texto: #e8f5e9;
+    --texto2: #a5c8aa;
+    --borde: #2a3d2d;
+    --rojo: #e53935;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
-    color: var(--text);
+    background: var(--fondo);
+    color: var(--texto);
+    font-family: 'Syne', sans-serif;
     min-height: 100vh;
-    padding: 0;
+    background-image:
+      radial-gradient(ellipse at 10% 20%, rgba(26,107,47,0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 90% 80%, rgba(245,197,24,0.08) 0%, transparent 50%);
   }
 
-  /* HEADER — 3 columnas: logo | título+formatos | firma+switch */
-  .header {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 12px 16px;
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    align-items: center;
-    gap: 12px;
-    z-index: 100;
-  }
-
-  /* Logo (izquierda) */
-  .header-logo {
+  /* HEADER */
+  header {
+    background: linear-gradient(135deg, var(--verde) 0%, #0d3d1a 100%);
+    padding: 16px 24px;
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    border-bottom: 2px solid var(--amarillo);
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
   }
+  .header-brand {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .logo-icon {
+    width: 44px; height: 44px;
+    background: var(--amarillo);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+  }
+  .brand-text h1 { font-size: 18px; font-weight: 800; color: #fff; letter-spacing: -0.5px; }
+  .brand-text p { font-size: 11px; color: rgba(255,255,255,0.65); font-weight: 400; letter-spacing: 1px; text-transform: uppercase; }
 
-  /* Centro: título + formatos apilados */
-  .header-center {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
+  .header-stats {
+    display: flex; gap: 20px;
   }
-  .header-title {
-    font-size: 20px;
-    font-weight: 800;
-    letter-spacing: 1px;
-    font-family: 'DM Sans', sans-serif;
-    text-align: center;
-    text-transform: uppercase;
-    background: linear-gradient(135deg, #0d9488, #10b981, #34d399, #0d9488);
-    background-size: 200% 200%;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    animation: shimmerTitle 3s ease infinite;
-  }
-  @keyframes shimmerTitle {
-    0%,100% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-  }
-  .btn-formatos {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    color: var(--accent);
-    text-decoration: none;
-    padding: 5px 14px;
-    border-radius: 8px;
-    font-size: 11px;
-    font-weight: 700;
-    font-family: 'DM Sans', sans-serif;
-    white-space: nowrap;
-    border: 1.5px solid var(--accent);
-    background: rgba(0,212,170,0.06);
-    box-shadow: 0 0 10px rgba(0,212,170,0.1);
-    transition: all 0.25s;
-  }
-  .btn-formatos:hover {
-    background: rgba(0,212,170,0.14);
-    box-shadow: 0 0 18px rgba(0,212,170,0.2);
-    transform: translateY(-1px);
-  }
-  body.light-mode .btn-formatos {
-    border-color: #0d9488;
-    color: #0d9488;
-    background: rgba(13,148,136,0.07);
-  }
-
-  /* Derecha: firma arriba, switch abajo */
-  .header-right {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 6px;
-  }
-  .clock {
+  .stat-pill {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 12px;
     font-family: 'DM Mono', monospace;
-    font-size: 18px;
-    color: var(--accent);
-    letter-spacing: 1px;
+    color: var(--amarillo);
   }
-  .date-text { font-size: 11px; color: var(--muted); text-align: right; }
 
   /* NAV TABS */
   .nav-tabs {
     display: flex;
-    gap: 4px;
-    padding: 12px 24px 0;
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
+    background: var(--fondo2);
+    border-bottom: 1px solid var(--borde);
     overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
   }
-  .nav-tabs::-webkit-scrollbar { display: none; }
   .nav-tab {
-    padding: 8px 18px;
-    border-radius: 8px 8px 0 0;
-    font-size: 13px;
-    font-weight: 500;
+    padding: 14px 24px;
     cursor: pointer;
-    color: var(--muted);
-    border: 1px solid transparent;
-    border-bottom: none;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--texto2);
+    border-bottom: 3px solid transparent;
     transition: all 0.2s;
-    background: transparent;
     white-space: nowrap;
-    flex-shrink: 0;
+    letter-spacing: 0.5px;
+    display: flex; align-items: center; gap: 8px;
   }
-  .nav-tab:hover { color: var(--text); background: var(--surface2); }
-  .nav-tab.active {
-    color: var(--accent);
-    background: var(--bg);
-    border-color: var(--border);
-  }
+  .nav-tab:hover { color: var(--texto); background: rgba(255,255,255,0.03); }
+  .nav-tab.active { color: var(--amarillo); border-bottom-color: var(--amarillo); }
 
-  /* MAIN LAYOUT */
-  .main {
-    max-width: 960px;
-    margin: 0 auto;
-    padding: 28px 24px;
-  }
+  /* MAIN CONTENT */
+  .main { padding: 24px; max-width: 1100px; margin: 0 auto; }
 
+  /* PANELS */
   .panel { display: none; }
   .panel.active { display: block; }
 
-  /* SECTION TITLE */
-  .section-title {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 1.2px;
-    margin-bottom: 16px;
-  }
-
-  /* FORM CARD */
-  .form-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
+  /* CARDS */
+  .card {
+    background: var(--fondo2);
+    border: 1px solid var(--borde);
     border-radius: 16px;
-    padding: 28px;
-    margin-bottom: 24px;
+    padding: 24px;
+    margin-bottom: 20px;
   }
-
-  .form-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-  }
-  .form-grid.three { grid-template-columns: 1fr 1fr 1fr; }
-  .form-group { display: flex; flex-direction: column; gap: 6px; }
-  .form-group.full { grid-column: 1 / -1; }
-
-  label {
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-  }
-
-  input, select, textarea {
-    resize: none;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
+  .card-title {
     font-size: 14px;
-    padding: 10px 14px;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    outline: none;
-    width: 100%;
+    font-weight: 700;
+    color: var(--amarillo);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 18px;
+    display: flex; align-items: center; gap: 8px;
   }
-  input:focus, select:focus, textarea:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(0,212,170,0.1);
-  }
-  select option { background: var(--surface2); }
 
-  .temp-input-wrap {
-    position: relative;
+  /* SCANNER */
+  #reader {
+    border-radius: 12px;
+    overflow: hidden;
+    border: 2px solid var(--verde-claro);
+    background: #000;
+    max-width: 480px;
+    margin: 0 auto;
   }
-  .temp-input-wrap input {
+  #reader * { border-radius: 0 !important; }
+
+  .scan-result {
+    background: var(--fondo3);
+    border: 2px solid var(--verde-claro);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-top: 16px;
     font-family: 'DM Mono', monospace;
-    font-size: 22px;
-    font-weight: 500;
+    font-size: 15px;
     text-align: center;
-    padding: 14px;
-    letter-spacing: 1px;
+    display: none;
   }
-  .temp-unit {
-    position: absolute;
-    right: 14px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 18px;
-    color: var(--muted);
-    font-family: 'DM Mono', monospace;
-  }
-  .temp-indicator {
-    height: 4px;
-    border-radius: 2px;
-    margin-top: 6px;
-    transition: all 0.3s;
-    background: var(--muted);
-  }
+  .scan-result.show { display: block; }
+  .scan-result .label { font-size: 10px; color: var(--texto2); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+  .scan-result .value { font-size: 20px; color: var(--amarillo); font-weight: 500; }
 
-  /* STATUS badge */
-  .status-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-  }
-  .status-ok { background: rgba(16,185,129,0.15); color: var(--success); }
-  .status-warn { background: rgba(245,158,11,0.15); color: var(--warn); }
-  .status-danger { background: rgba(239,68,68,0.15); color: var(--danger); }
-  .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
-
-  /* BTN */
+  /* BUTTONS */
   .btn {
     padding: 12px 24px;
-    border-radius: 10px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
     border: none;
-    transition: all 0.2s;
-    letter-spacing: 0.3px;
-  }
-  .btn-primary {
-    background: var(--accent);
-    color: #0a0f1e;
-    width: 100%;
-    padding: 14px;
-    font-size: 15px;
-    margin-top: 20px;
-  }
-  .btn-primary:hover { background: #00eec0; transform: translateY(-1px); }
-  .btn-primary:active { transform: translateY(0); }
-  .btn-secondary {
-    background: var(--surface2);
-    color: var(--text);
-    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
     font-size: 13px;
-    padding: 8px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+    display: inline-flex; align-items: center; gap: 8px;
   }
-  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-primary { background: var(--verde-claro); color: #fff; }
+  .btn-primary:hover { background: var(--verde); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(45,153,72,0.4); }
+  .btn-secondary { background: var(--fondo3); color: var(--texto2); border: 1px solid var(--borde); }
+  .btn-secondary:hover { color: var(--texto); border-color: var(--verde-claro); }
+  .btn-danger { background: var(--rojo); color: #fff; }
+  .btn-danger:hover { background: #c62828; }
+  .btn-amarillo { background: var(--amarillo); color: #000; }
+  .btn-amarillo:hover { background: #e6b800; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(245,197,24,0.4); }
+  .btn-sm { padding: 8px 14px; font-size: 12px; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
 
-  /* TOAST */
-  .toast {
-    position: fixed;
-    bottom: 28px;
-    right: 28px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 16px 20px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    transform: translateY(100px);
-    opacity: 0;
-    transition: all 0.3s ease;
-    z-index: 999;
-    min-width: 280px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  /* FORM */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group.full { grid-column: 1 / -1; }
+  label { font-size: 11px; font-weight: 600; color: var(--texto2); text-transform: uppercase; letter-spacing: 1px; }
+  input, select, textarea {
+    background: var(--fondo3);
+    border: 1px solid var(--borde);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: var(--texto);
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    transition: border-color 0.2s;
+    outline: none;
   }
-  .toast.show { transform: translateY(0); opacity: 1; }
-  .toast-icon { font-size: 22px; }
-  .toast-text { font-size: 14px; font-weight: 500; }
-  .toast-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  input:focus, select:focus, textarea:focus { border-color: var(--verde-claro); }
+  input::placeholder { color: rgba(165,200,170,0.4); }
+  select option { background: var(--fondo2); }
+
+  /* PALITICKET PREVIEW */
+  .paliticket-preview {
+    background: #fff;
+    color: #000;
+    border-radius: 12px;
+    padding: 20px;
+    max-width: 380px;
+    margin: 0 auto;
+    font-family: 'DM Mono', monospace;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  }
+  .pali-header {
+    text-align: center;
+    border-bottom: 2px dashed #ccc;
+    padding-bottom: 12px;
+    margin-bottom: 12px;
+  }
+  .pali-header h2 { font-size: 16px; font-weight: 800; font-family: 'Syne', sans-serif; color: #1a6b2f; }
+  .pali-header p { font-size: 10px; color: #666; letter-spacing: 1px; }
+  .pali-number { font-size: 28px; font-weight: 800; text-align: center; color: #000; letter-spacing: 2px; margin: 8px 0; }
+  .pali-rows { display: flex; flex-direction: column; gap: 4px; font-size: 11px; }
+  .pali-row { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px dotted #eee; }
+  .pali-row .pk { color: #666; text-transform: uppercase; font-size: 10px; }
+  .pali-row .pv { font-weight: 500; }
+  .pali-barcode { text-align: center; margin-top: 12px; }
+  .pali-footer { text-align: center; font-size: 9px; color: #aaa; margin-top: 8px; }
 
   /* TABLE */
-  .table-wrap {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    overflow: hidden;
-  }
-  .table-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px 20px;
-    border-bottom: 1px solid var(--border);
-  }
-  .table-title { font-size: 14px; font-weight: 600; }
-  table { width: 100%; border-collapse: collapse; }
+  .table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--borde); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
   th {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    padding: 10px 16px;
+    background: var(--fondo3);
+    padding: 12px 14px;
     text-align: left;
-    border-bottom: 1px solid var(--border);
-    background: var(--surface2);
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--texto2);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    white-space: nowrap;
   }
   td {
-    padding: 12px 16px;
-    font-size: 13px;
-    border-bottom: 1px solid rgba(255,255,255,0.04);
-    vertical-align: middle;
-  }
-  tr:last-child td { border-bottom: none; }
-  tr:hover td { background: rgba(255,255,255,0.02); }
-  .temp-val {
+    padding: 12px 14px;
+    border-top: 1px solid var(--borde);
+    color: var(--texto);
     font-family: 'DM Mono', monospace;
-    font-size: 15px;
-    font-weight: 500;
+    font-size: 12px;
+    white-space: nowrap;
   }
-  .temp-ok { color: var(--success); }
-  .temp-warn { color: var(--warn); }
-  .temp-danger { color: var(--danger); }
+  tr:hover td { background: rgba(45,153,72,0.05); }
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .badge-verde { background: rgba(45,153,72,0.2); color: #4caf50; border: 1px solid rgba(45,153,72,0.3); }
+  .badge-naranja { background: rgba(232,114,12,0.2); color: #ff9800; border: 1px solid rgba(232,114,12,0.3); }
 
-  /* DASHBOARD */
-  .dash-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 16px;
-    margin-bottom: 24px;
-  }
-  .dash-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 18px 20px;
-    position: relative;
-    overflow: hidden;
-  }
-  .dash-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 3px;
-    border-radius: 14px 14px 0 0;
-  }
-  .dash-card.cold::before { background: var(--accent2); }
-  .dash-card.frozen::before { background: var(--accent); }
-  .dash-card.ambient::before { background: var(--warn); }
-  .dash-card.critical::before { background: var(--danger); }
-
-  .dash-area { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; }
-  .dash-temp {
-    font-family: 'DM Mono', monospace;
-    font-size: 32px;
-    font-weight: 500;
-    line-height: 1;
-    margin-bottom: 6px;
-  }
-  .dash-temp .unit { font-size: 16px; color: var(--muted); }
-  .dash-last { font-size: 11px; color: var(--muted); }
-  .dash-person { font-size: 12px; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
-
-  /* AREA CONFIG */
-  .areas-list { display: flex; flex-direction: column; gap: 10px; }
-  .area-item {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 14px 18px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-  }
-  .area-color { width: 10px; height: 36px; border-radius: 4px; flex-shrink: 0; }
-  .area-info { flex: 1; }
-  .area-name { font-size: 14px; font-weight: 500; }
-  .area-range { font-size: 12px; color: var(--muted); margin-top: 2px; font-family: 'DM Mono', monospace; }
-
-  /* SQL panel */
-  .code-block {
-    background: #0d1117;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 20px;
-    font-family: 'DM Mono', monospace;
-    font-size: 12.5px;
-    line-height: 1.8;
-    color: #c9d1d9;
-    overflow-x: auto;
-    position: relative;
-  }
-  .kw { color: #ff7b72; }
-  .fn { color: #79c0ff; }
-  .str { color: #a5d6ff; }
-  .cm { color: #6e7681; }
-  .copy-btn {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    color: var(--muted);
-    font-size: 11px;
-    padding: 4px 10px;
-    cursor: pointer;
-    font-family: 'DM Sans', sans-serif;
-    transition: all 0.2s;
-  }
-  .copy-btn:hover { color: var(--accent); border-color: var(--accent); }
-
-  .info-box {
-    background: rgba(59,130,246,0.08);
-    border: 1px solid rgba(59,130,246,0.2);
+  /* SCAN MODE INDICATOR */
+  .scan-mode-bar {
+    background: linear-gradient(90deg, rgba(26,107,47,0.4), rgba(245,197,24,0.1));
+    border: 1px solid var(--verde-claro);
     border-radius: 10px;
-    padding: 14px 18px;
-    font-size: 13px;
-    color: #93c5fd;
-    line-height: 1.6;
-    margin: 16px 0;
+    padding: 12px 18px;
+    margin-bottom: 16px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 10px;
   }
-  .info-box strong { color: #bfdbfe; }
-
-  /* CHART AREA */
-  .chart-container {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 20px;
-    margin-bottom: 20px;
+  .pulse-dot {
+    width: 10px; height: 10px;
+    background: var(--verde-claro);
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+    display: inline-block; margin-right: 8px;
   }
-  .chart-title { font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.8px; }
-  canvas { width: 100% !important; }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(45,153,72,0.7); }
+    50% { opacity: 0.7; box-shadow: 0 0 0 6px rgba(45,153,72,0); }
+  }
 
-  /* FILTER BAR */
-  .filter-bar {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 20px;
+  /* REGISTRO DETAIL */
+  .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .detail-item { background: var(--fondo3); border-radius: 10px; padding: 14px; }
+  .detail-item .dk { font-size: 10px; color: var(--texto2); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+  .detail-item .dv { font-family: 'DM Mono', monospace; font-size: 16px; color: var(--texto); font-weight: 500; }
+  .detail-item.highlight { border: 1px solid var(--verde-claro); }
+  .detail-item.highlight .dv { color: var(--amarillo); font-size: 20px; }
+
+  /* SEARCH BAR */
+  .search-bar {
+    display: flex; gap: 10px; margin-bottom: 20px;
     flex-wrap: wrap;
-    align-items: center;
   }
-  .filter-bar select, .filter-bar input { width: auto; flex: 1; min-width: 140px; }
-
-  /* ===== TABLE SCROLL (always active) ===== */
-  .table-scroll {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-  .table-scroll table {
-    min-width: 680px;
+  .search-bar input {
+    flex: 1; min-width: 200px;
   }
 
-  /* ===== RESPONSIVE: TABLET (max-width: 900px) ===== */
-  @media (max-width: 900px) {
-    .main { max-width: 100%; padding: 20px 16px; }
-    .dash-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-    .form-grid.three { grid-template-columns: 1fr 1fr; }
-    .form-card { padding: 20px; }
-    .chart-container { padding: 16px; }
-    .logo-text { font-size: 12px; }
-    .clock { font-size: 16px; }
+  /* ALERTS */
+  .alert {
+    padding: 14px 18px;
+    border-radius: 10px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    display: flex; align-items: center; gap: 10px;
   }
+  .alert-success { background: rgba(45,153,72,0.15); border: 1px solid rgba(45,153,72,0.4); color: #81c784; }
+  .alert-error { background: rgba(229,57,53,0.15); border: 1px solid rgba(229,57,53,0.4); color: #ef9a9a; }
+  .alert-info { background: rgba(245,197,24,0.1); border: 1px solid rgba(245,197,24,0.3); color: var(--amarillo); }
 
-  /* ===== RESPONSIVE: MOBILE (max-width: 640px) ===== */
-  @media (max-width: 640px) {
-    /* --- Header móvil: 2 columnas logo|firma, centro abajo --- */
-    .header {
-      grid-template-columns: auto 1fr;
-      grid-template-rows: auto auto;
-      padding: 10px 12px;
-      gap: 6px 8px;
-    }
-    .header-logo { order: 1; }
-    .header-right { order: 2; }
-    .header-center {
-      order: 3;
-      grid-column: 1 / -1;
-    }
-    .header-title { font-size: 14px; }
-    .btn-formatos { font-size: 10px; padding: 5px 10px; }
-    .header-logo img { height: 38px !important; }
-    /* Firma 30% más pequeña en móvil */
-    .topbar-dev-sig { padding: 3px 8px; }
-    .topbar-sig-label { font-size: 6px !important; letter-spacing: 0.8px !important; }
-    .topbar-sig-name { font-size: 9px !important; }
-    .topbar-sig-role { font-size: 7px !important; }
-    .switch-track { width: 36px !important; height: 18px !important; }
-    .switch-thumb { width: 14px !important; height: 14px !important; font-size: 8px !important; }
-    .switch-label { font-size: 9px !important; }
-    .clock { font-size: 16px; }
-    .date-text { font-size: 10px; }
-
-    /* --- Nav tabs scroll horizontal --- */
-    .nav-tabs {
-      padding: 8px 12px 0;
-      gap: 2px;
-    }
-    .nav-tab {
-      padding: 8px 14px;
-      font-size: 12px;
-    }
-
-    /* --- Main content --- */
-    .main { padding: 12px 8px; }
-    .section-title { font-size: 12px; margin-bottom: 12px; }
-
-    /* --- Form cards --- */
-    .form-card { padding: 16px 12px; margin-bottom: 16px; border-radius: 12px; }
-    .form-grid { grid-template-columns: 1fr; gap: 12px; }
-    .form-grid.three { grid-template-columns: 1fr; }
-    label { font-size: 11px; }
-    input, select, textarea { font-size: 14px; padding: 12px; border-radius: 8px; }
-    .temp-input-wrap input { font-size: 20px; padding: 12px; }
-    .temp-unit { font-size: 16px; right: 12px; }
-
-    /* --- Botones táctiles --- */
-    .btn { padding: 14px 20px; font-size: 14px; min-height: 44px; }
-    .btn-primary { padding: 16px; font-size: 15px; }
-    .btn-secondary { padding: 10px 14px; font-size: 13px; min-height: 44px; }
-    .btn-icon { padding: 8px 12px; font-size: 14px; min-height: 44px; min-width: 44px; }
-
-    /* --- Dashboard cards --- */
-    .dash-grid { grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
-    .dash-card { padding: 14px 16px; border-radius: 12px; }
-    .dash-area { font-size: 10px; margin-bottom: 6px; }
-    .dash-temp { font-size: 26px; margin-bottom: 4px; }
-    .dash-temp .unit { font-size: 14px; }
-    .dash-last { font-size: 10px; }
-    .dash-person { font-size: 11px; margin-top: 6px; padding-top: 6px; }
-
-    /* --- Filtros --- */
-    .filter-bar {
-      flex-direction: column;
-      gap: 8px;
-    }
-    .filter-bar select, .filter-bar input {
-      width: 100%;
-      flex: none;
-      min-width: unset;
-      min-height: 44px;
-      font-size: 14px;
-    }
-
-    /* --- Tablas --- */
-    .table-wrap { border-radius: 12px; }
-    .table-head { padding: 12px 14px; }
-    .table-title { font-size: 13px; }
-    th { font-size: 10px; padding: 8px 10px; }
-    td { font-size: 12px; padding: 10px; }
-    .temp-val { font-size: 14px; }
-    .table-scroll table { min-width: 580px; }
-
-    /* --- Status badges --- */
-    .status-badge { font-size: 11px; padding: 4px 10px; }
-
-    /* --- Chart --- */
-    .chart-container { padding: 14px; border-radius: 12px; margin-bottom: 14px; }
-    .chart-title { font-size: 12px; margin-bottom: 12px; }
-
-    /* --- Code block --- */
-    .code-block { padding: 14px; font-size: 11.5px; border-radius: 10px; }
-    .info-box { padding: 12px 14px; font-size: 12px; border-radius: 8px; }
-
-    /* --- Toast móvil --- */
-    .toast {
-      left: 12px;
-      right: 12px;
-      bottom: 16px;
-      min-width: unset;
-      border-radius: 10px;
-      padding: 14px 16px;
-    }
-
-    /* --- Modal móvil --- */
-    .modal-overlay { padding: 12px; }
-    .modal {
-      padding: 20px 16px;
-      border-radius: 14px;
-      max-width: 100%;
-      max-height: 85vh;
-    }
-    .modal-title { font-size: 14px; margin-bottom: 16px; }
-    .modal-actions { flex-direction: column; gap: 8px; }
-    .btn-danger, .btn-save { min-height: 44px; font-size: 14px; text-align: center; }
-
-    /* --- Areas config --- */
-    .area-item { padding: 12px 14px; border-radius: 10px; }
-    .area-name { font-size: 13px; }
-    .area-range { font-size: 11px; }
-
-    /* --- Estilo dark mode para inputs time/date --- */
-    [data-theme="dark"] input[type="time"],
-    [data-theme="dark"] input[type="date"] {
-      color-scheme: dark;
-      background: var(--surface2);
-      color: var(--text);
-      border-color: var(--border);
-    }
-    [data-theme="dark"] #registroClock {
-      color: var(--accent);
-    }
-  }
-
-  /* ===== RESPONSIVE: ULTRA-SMALL (max-width: 400px) ===== */
-  @media (max-width: 400px) {
-    .dash-grid { grid-template-columns: 1fr; }
-    .dash-temp { font-size: 28px; }
-    .header { padding: 8px 10px; }
-    .logo-icon { width: 30px; height: 30px; font-size: 15px; border-radius: 6px; }
-    .logo-text { font-size: 11px; }
-    .main { padding: 10px 6px; }
-    .form-card { padding: 14px 10px; }
-    .nav-tab { padding: 7px 10px; font-size: 11px; }
-    .modal { padding: 16px 12px; }
-  }
-
-  /* MODAL EDITAR */
+  /* MODAL */
   .modal-overlay {
     display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.7);
-    z-index: 500;
-    align-items: center;
-    justify-content: center;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.8);
+    z-index: 1000;
+    align-items: center; justify-content: center;
     padding: 20px;
   }
   .modal-overlay.open { display: flex; }
   .modal {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
+    background: var(--fondo2);
+    border: 1px solid var(--borde);
+    border-radius: 20px;
     padding: 28px;
+    max-width: 520px;
     width: 100%;
-    max-width: 560px;
     max-height: 90vh;
     overflow-y: auto;
   }
-  .modal-title {
-    font-size: 15px;
-    font-weight: 600;
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .modal-close {
-    background: none;
-    border: none;
-    color: var(--muted);
-    font-size: 20px;
-    cursor: pointer;
-    line-height: 1;
-    padding: 2px 6px;
-    border-radius: 6px;
-  }
-  .modal-close:hover { color: var(--text); background: var(--surface2); }
-  .modal-actions {
-    display: flex;
-    gap: 10px;
-    margin-top: 20px;
-  }
-  .btn-danger {
-    background: rgba(239,68,68,0.15);
-    color: var(--danger);
-    border: 1px solid rgba(239,68,68,0.3);
-    font-size: 13px;
-    padding: 8px 16px;
-  }
-  .btn-danger:hover { background: rgba(239,68,68,0.25); }
-  .btn-save {
-    background: var(--accent);
-    color: #0a0f1e;
-    font-size: 13px;
-    padding: 8px 20px;
-    flex: 1;
-  }
-  .btn-save:hover { background: #00eec0; }
-  .btn-icon {
-    background: none;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    color: var(--muted);
-    cursor: pointer;
-    font-size: 13px;
-    padding: 4px 9px;
-    transition: all 0.15s;
-    line-height: 1.4;
-  }
-  .btn-icon:hover { color: var(--text); border-color: var(--accent); }
-  .btn-icon.del:hover { color: var(--danger); border-color: var(--danger); }
+  .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  .modal-title { font-size: 16px; font-weight: 800; }
+  .close-btn { background: none; border: none; color: var(--texto2); font-size: 22px; cursor: pointer; }
+  .close-btn:hover { color: var(--rojo); }
 
-  /* ===== PREMIUM FIRMA + LOGO FLOAT ===== */
-  @keyframes shimmer-gold-temp {
-    0%   { background-position: -200% center; }
-    100% { background-position: 200% center; }
-  }
-  @keyframes logoFloatTemp {
-    0%, 100% { transform: translateY(0); }
-    50%       { transform: translateY(-3px); }
-  }
-  .logo-float-img {
-    animation: logoFloatTemp 3s ease-in-out infinite;
-    filter: drop-shadow(0 2px 8px rgba(0,212,170,0.35));
-  }
-  @keyframes sig-border-glow {
-    0%, 100% { border-color: rgba(245,158,11,0.25); box-shadow: 0 0 8px rgba(245,158,11,0.08); }
-    50%      { border-color: rgba(245,158,11,0.5);  box-shadow: 0 0 14px rgba(245,158,11,0.18); }
-  }
-  .topbar-dev-sig {
-    background: rgba(245,158,11,0.07);
-    border: 1.5px solid rgba(245,158,11,0.3);
-    border-radius: 10px;
-    padding: 5px 12px;
-    text-align: right;
-    animation: sig-border-glow 3s ease-in-out infinite;
-  }
-  .topbar-sig-label {
-    font-size: 9px;
-    font-weight: 700;
-    letter-spacing: 1.2px;
-    color: var(--muted);
-    text-transform: uppercase;
-    margin-bottom: 1px;
-  }
-  .topbar-sig-name {
-    font-size: 13px;
-    font-weight: 800;
-    background: linear-gradient(90deg, #f59e0b, #fbbf24, #f59e0b, #fde68a, #f59e0b);
-    background-size: 200% auto;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    animation: shimmer-gold-temp 3s linear infinite;
-    white-space: nowrap;
-  }
-  .topbar-sig-role {
-    font-size: 10px;
-    color: var(--accent);
-    font-weight: 600;
-    letter-spacing: 0.3px;
-  }
-  /* Clock theme-aware colors */
-  body:not(.light-mode) #registroClock { color: #00d4aa !important; }
-  body.light-mode #registroClock { color: #0d9488 !important; font-weight: 700; }
-  body:not(.light-mode) #registroDate { color: #64748b !important; }
-  body.light-mode #registroDate { color: #1e40af !important; font-weight: 600; }
-  body:not(.light-mode) #registroTurno { background: rgba(0,212,170,0.08) !important; border-color: rgba(0,212,170,0.2) !important; color: #00d4aa !important; }
-  body.light-mode #registroTurno { background: rgba(37,99,235,0.08) !important; border-color: rgba(37,99,235,0.2) !important; color: #1d4ed8 !important; font-weight: 700; }
-
-  /* ===== PESTAÑAS DE FORMATO (selector de grupo de áreas) ===== */
-  .format-tabs {
-    display: flex;
-    gap: 8px;
-    padding: 12px 0;
-    flex-wrap: wrap;
-  }
-  .format-tab {
-    padding: 10px 20px;
-    border-radius: 10px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    border: 2px solid var(--border);
-    background: var(--surface);
-    color: var(--muted);
-    transition: all 0.2s;
-  }
-  .format-tab:hover { border-color: var(--accent); color: var(--text); }
-  .format-tab.active {
-    background: var(--accent);
-    color: #fff;
-    border-color: var(--accent);
-  }
-  /* Responsive: format-tabs en móvil */
-  @media (max-width: 640px) {
-    .format-tabs { gap: 6px; padding: 8px 0; }
-    .format-tab { padding: 8px 12px; font-size: 11px; }
+  /* PRINT STYLES */
+  @media print {
+    body * { visibility: hidden; }
+    .paliticket-print-area, .paliticket-print-area * { visibility: visible; }
+    .paliticket-print-area {
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: auto;
+      background: #fff;
+      padding: 20px;
+    }
   }
 
+  .empty-state {
+    text-align: center; padding: 60px 20px; color: var(--texto2);
+  }
+  .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+  .empty-state p { font-size: 14px; }
+
+  .flex-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+
+  @media (max-width: 600px) {
+    .form-grid { grid-template-columns: 1fr; }
+    .detail-grid { grid-template-columns: 1fr; }
+    .header-stats { display: none; }
+    .main { padding: 16px; }
+  }
 </style>
 </head>
 <body>
 
-<div class="header">
-  <!-- IZQUIERDA: Logo -->
-  <div class="header-logo">
-    <img src="LOGO.png" alt="Frutos Tropicales" class="logo-float-img" style="height:46px;width:auto;object-fit:contain;" />
-  </div>
-
-  <!-- CENTRO: Título + Reporte de Formatos -->
-  <div class="header-center">
-    <div class="header-title">Registro de Temperaturas</div>
-    <a href="reporte_frio.html" class="btn-formatos">📋 Reporte de Formatos</a>
-  </div>
-
-  <!-- DERECHA: Firma arriba + Switch abajo -->
-  <div class="header-right">
-    <div class="topbar-dev-sig">
-      <div class="topbar-sig-label">DESARROLLADO POR:</div>
-      <div class="topbar-sig-name">Rodrigo Garcia</div>
-      <div class="topbar-sig-role">Systems Analyst &amp; Developer-QA</div>
-    </div>
-    <div class="theme-switch" onclick="toggleTheme()" title="Cambiar modo">
-      <div class="switch-track">
-        <div class="switch-thumb" id="switchThumb">🌙</div>
-      </div>
-      <span class="switch-label" id="switchLabel">Modo oscuro</span>
+<!-- HEADER -->
+<header>
+  <div class="header-brand">
+    <div class="logo-icon">🍍</div>
+    <div class="brand-text">
+      <h1>FTP Export SAC</h1>
+      <p>Sistema de Palítickets — Materia Prima</p>
     </div>
   </div>
-</div>
+  <div class="header-stats">
+    <div class="stat-pill" id="stat-total">Total: 0 registros</div>
+    <div class="stat-pill" id="stat-hoy">Hoy: 0</div>
+  </div>
+</header>
 
+<!-- NAV TABS -->
 <div class="nav-tabs">
-  <button class="nav-tab active" onclick="showPanel('registro')">📋 Registro</button>
-  <button class="nav-tab" onclick="showPanel('historial')">📊 Historial</button>
-  <button class="nav-tab" onclick="showPanel('dashboard')">🌡️ Dashboard</button>
-  <button class="nav-tab" onclick="showPanel('config')">⚙️ Detalles</button>
+  <div class="nav-tab active" onclick="switchTab('scan')" id="tab-scan">📷 Escanear</div>
+  <div class="nav-tab" onclick="switchTab('new')" id="tab-new">➕ Nuevo Registro</div>
+  <div class="nav-tab" onclick="switchTab('registros')" id="tab-registros">📋 Registros</div>
+  <div class="nav-tab" onclick="switchTab('print')" id="tab-print">🖨️ Imprimir Ticket</div>
 </div>
 
-<!-- ============== PANEL: REGISTRO ============== -->
 <div class="main">
-<div id="panel-registro" class="panel active">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 20px;">
-    <div>
-      <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-weight:600;">Fecha y hora actual</div>
-      <div id="registroClock" style="font-family:'DM Mono',monospace;font-size:22px;color:var(--accent);letter-spacing:1px;line-height:1.2;white-space:nowrap;">--:--:--</div>
-      <div id="registroDate" style="font-size:12px;color:var(--muted);margin-top:2px;">--</div>
-    </div>
-    <div style="text-align:right;">
-      <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:4px;">Turno</div>
-      <div id="registroTurno" style="font-size:13px;font-weight:600;color:var(--text);background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:6px 14px;"></div>
-    </div>
-  </div>
-  <div class="form-card">
-    <div class="section-title">Nuevo registro de temperatura</div>
 
-    <!-- Pestañas de selección de formato/grupo de áreas -->
-    <div class="format-tabs" id="formatTabs">
-      <button class="format-tab active" onclick="selectFormato('mp')" data-fmt="mp">🚛 Cámaras de Materia Prima</button>
-      <button class="format-tab" onclick="selectFormato('proceso')" data-fmt="proceso">🏭 Sala de Proceso</button>
-      <button class="format-tab" onclick="selectFormato('empaque')" data-fmt="empaque">❄️ Sala de Empaque</button>
-    </div>
+  <!-- ============ PANEL: ESCANEAR ============ -->
+  <div class="panel active" id="panel-scan">
+    <div class="card">
+      <div class="card-title">📷 Lector de QR / Código de Barras</div>
 
-    <div class="form-grid" style="margin-bottom:12px;grid-template-columns:1fr 1fr;">
-      <div class="form-group">
-        <label>Hora de medición</label>
-        <input type="time" id="hora" oninput="document.getElementById('turno').value = calcularTurno(this.value)" />
-        <input type="hidden" id="turno" />
-      </div>
-      <div class="form-group">
-        <label>Fecha</label>
-        <input type="date" id="fecha" />
-      </div>
-    </div>
-    <div class="form-grid" style="margin-bottom:16px;grid-template-columns:1fr 1fr;">
-      <div class="form-group">
-        <!-- La etiqueta cambia según el formato seleccionado -->
-        <label id="areaLabel">ZONA / REEFERS</label>
-        <select id="area" onchange="updateAreaInfo()">
-          <option value="">— Seleccionar —</option>
-          <!-- Las opciones se generan dinámicamente con selectFormato() -->
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Inspector responsable</label>
-        <select id="operario">
-          <option value="">— Seleccionar —</option>
-          <option>LUIS APONTE</option>
-          <option>MAYDA APONTE</option>
-          <option>SHEYLA CAMONES</option>
-          <option>JHONY PAJUELO</option>
-          <option>BLANCA MALVACEDA</option>
-          <option>CHRISTY JIMENEZ</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="form-grid" style="margin-bottom:16px; align-items:start">
-      <div class="form-group">
-        <label>Temperatura registrada</label>
-        <div class="temp-input-wrap">
-          <input type="number" id="temperatura" placeholder="0.0" step="0.1" min="-50" max="50" oninput="updateTempStatus()" />
-          <span class="temp-unit">°C</span>
+      <div class="scan-mode-bar">
+        <div><span class="pulse-dot"></span><strong>Cámara lista</strong> — Apunta al código QR o de barras</div>
+        <div class="flex-row">
+          <button class="btn btn-primary btn-sm" onclick="startScanner()">▶ Iniciar Cámara</button>
+          <button class="btn btn-secondary btn-sm" onclick="stopScanner()">⏹ Detener</button>
         </div>
-        <div class="temp-indicator" id="tempIndicator"></div>
-        <div id="tempStatus" style="margin-top:6px;min-height:24px"></div>
-        <div style="margin-top:6px; font-size:11px; color:var(--muted)" id="rangoInfo"></div>
       </div>
-      <div class="form-group">
-        <label>Observaciones (opcional)</label>
-        <textarea id="observaciones" rows="4" placeholder="Ej: Puerta abierta 2 min. por ingreso de pallets. Equipo funcionando con normalidad..."></textarea>
+
+      <div id="reader"></div>
+
+      <div class="scan-result" id="scan-result-box">
+        <div class="label">Código detectado</div>
+        <div class="value" id="scan-value">—</div>
       </div>
-    </div>
 
+      <div id="scan-action-area" style="display:none; margin-top:16px;">
+        <div id="scan-found-info"></div>
+        <div class="flex-row" style="margin-top:12px;">
+          <button class="btn btn-primary" onclick="verRegistroEscaneado()">📋 Ver Registro</button>
+          <button class="btn btn-amarillo" onclick="nuevoDesdeEscaneo()">➕ Nuevo Registro con este código</button>
+        </div>
+      </div>
 
-
-    <button class="btn btn-primary" onclick="guardarRegistro()">✓ Guardar registro</button>
-  </div>
-
-  <!-- Últimos registros -->
-  <div class="section-title">Registros de hoy — <span id="contadorHoy" style="color:var(--accent);font-weight:700"></span></div>
-  <div class="table-wrap table-scroll">
-    <table>
-      <thead>
-        <tr>
-          <th>Hora</th>
-          <th>Área</th>
-          <th>Temp.</th>
-          <th>Estado</th>
-          <th>Inspector</th>
-          <th>Observación</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody id="tablaRegistros">
-        <tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">Sin registros aún hoy</td></tr>
-      </tbody>
-    </table>
-  </div>
-</div>
-
-<!-- ============== PANEL: HISTORIAL ============== -->
-<div id="panel-historial" class="panel">
-  <div class="filter-bar">
-    <input type="date" id="filtroFecha" />
-    <select id="filtroArea">
-      <option value="">Todas las áreas</option>
-      <!-- Cámaras de Materia Prima -->
-      <option>CAMARA DE MATERIA PRIMA</option>
-      <option>TEMPERATURA DE PRODUCTO(MP)</option>
-      <option>REEFER 1</option>
-      <option>REEFER 2</option>
-      <option>REEFER 3</option>
-      <option>REEFER 4</option>
-      <option>REEFER 5</option>
-      <option>REEFER 6</option>
-      <option>REEFER 7</option>
-      <option>REEFER 8</option>
-      <option>REEFER 9</option>
-      <option>REEFER 10</option>
-      <!-- Sala de Proceso -->
-      <option>ACONDICIONADO</option>
-      <option>EMBANDEJADO</option>
-      <option>LAVADO DE BANDEJAS</option>
-      <option>PRE ENFRIADO</option>
-      <!-- Sala de Empaque -->
-      <option>EMPAQUE</option>
-      <option>TEMPERATURA PRODUCTO</option>
-      <option>CAMARA DE PRODUCTO TERMINADO</option>
-      <option>DESPACHO</option>
-    </select>
-    <button class="btn btn-secondary" onclick="filtrarHistorial()">Filtrar</button>
-    <button class="btn btn-secondary" onclick="exportarCSV()">⬇ Exportar CSV</button>
-  </div>
-
-  <div class="table-wrap">
-    <div class="table-head">
-      <span class="table-title" id="historialTitle">Historial de registros</span>
-      <span class="date-text" id="historialCount"></span>
-    </div>
-    <table>
-      <thead>
-        <tr>
-          <th>Fecha</th>
-          <th>Hora</th>
-          <th>Área</th>
-          <th>Temperatura</th>
-          <th>Estado</th>
-          <th>Turno</th>
-          <th>Operario</th>
-          <th>Observación</th>
-        </tr>
-      </thead>
-      <tbody id="tablaHistorial">
-        <tr><td colspan="8" style="text-align:center;color:var(--muted);padding:24px">Agregue registros para ver historial</td></tr>
-      </tbody>
-    </table>
-  </div>
-</div>
-
-<!-- ============== PANEL: DASHBOARD ============== -->
-<div id="panel-dashboard" class="panel">
-  <div class="section-title">Estado actual por área</div>
-  <div class="dash-grid" id="dashCards">
-    <div class="dash-card frozen">
-      <div class="dash-area">Cámara Frigorífica 1</div>
-      <div class="dash-temp">—<span class="unit">°C</span></div>
-      <div class="dash-last">Sin datos</div>
-      <div class="dash-person" style="color:var(--muted)">Sin operario</div>
+      <!-- MANUAL INPUT -->
+      <div style="margin-top:20px; border-top:1px solid var(--borde); padding-top:18px;">
+        <div class="card-title" style="font-size:12px;">⌨️ O ingresa el código manualmente</div>
+        <div class="flex-row">
+          <input type="text" id="manual-code" placeholder="Ej: PAL-20240001 o número de barras..." style="flex:1; min-width:200px;">
+          <button class="btn btn-secondary" onclick="buscarManual()">🔍 Buscar</button>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div class="section-title" style="margin-top:8px">Temperatura por área · hoy</div>
-  <div class="chart-container">
-    <canvas id="chartAreas" height="220"></canvas>
-  </div>
+  <!-- ============ PANEL: NUEVO REGISTRO ============ -->
+  <div class="panel" id="panel-new">
+    <div class="card">
+      <div class="card-title">📝 Nuevo Registro de Materia Prima</div>
+      <div id="alert-new"></div>
 
-  <div class="section-title">Temperatura por hora · hoy</div>
-  <div style="margin-bottom:12px">
-    <select id="filtroAreaChart" onchange="actualizarChartHoras()" style="width:auto;min-width:200px">
-      <option value="">Todas las áreas (promedio)</option>
-      <!-- Cámaras de Materia Prima -->
-      <option>CAMARA DE MATERIA PRIMA</option>
-      <option>TEMPERATURA DE PRODUCTO(MP)</option>
-      <option>REEFER 1</option>
-      <option>REEFER 2</option>
-      <option>REEFER 3</option>
-      <option>REEFER 4</option>
-      <option>REEFER 5</option>
-      <option>REEFER 6</option>
-      <option>REEFER 7</option>
-      <option>REEFER 8</option>
-      <option>REEFER 9</option>
-      <option>REEFER 10</option>
-      <!-- Sala de Proceso -->
-      <option>ACONDICIONADO</option>
-      <option>EMBANDEJADO</option>
-      <option>LAVADO DE BANDEJAS</option>
-      <option>PRE ENFRIADO</option>
-      <!-- Sala de Empaque -->
-      <option>EMPAQUE</option>
-      <option>TEMPERATURA PRODUCTO</option>
-      <option>CAMARA DE PRODUCTO TERMINADO</option>
-      <option>DESPACHO</option>
-    </select>
-  </div>
-  <div class="chart-container">
-    <canvas id="chartHoras" height="220"></canvas>
-  </div>
-</div>
+      <div id="pali-generado-info" style="display:none;" class="alert alert-success">
+        🎫 Palíticket generado: <strong id="pali-num-display">—</strong>
+      </div>
 
-<!-- ============== PANEL: CONFIG ============== -->
-<div id="panel-config" class="panel">
-  <div class="section-title">Rangos de temperatura por área</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>🎫 Número de Palíticket</label>
+          <div class="flex-row">
+            <input type="text" id="f-paliticket" placeholder="Se genera automático..." readonly style="flex:1; background:#0a1a0c; cursor:default;">
+            <button class="btn btn-amarillo btn-sm" onclick="generarPaliticket()">Generar</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>📅 Fecha de Ingreso</label>
+          <input type="datetime-local" id="f-fecha">
+        </div>
+        <div class="form-group">
+          <label>🚚 Número de Carro / Placa</label>
+          <input type="text" id="f-carro" placeholder="Ej: ABC-123">
+        </div>
+        <div class="form-group">
+          <label>🍎 Fruta</label>
+          <select id="f-fruta">
+            <option value="">— Seleccionar —</option>
+            <option>Mango</option>
+            <option>Palta / Aguacate</option>
+            <option>Maracuyá</option>
+            <option>Piña</option>
+            <option>Papaya</option>
+            <option>Plátano</option>
+            <option>Uva</option>
+            <option>Arándano</option>
+            <option>Granadilla</option>
+            <option>Lúcuma</option>
+            <option>Chirimoya</option>
+            <option>Camu Camu</option>
+            <option value="otro">Otro</option>
+          </select>
+        </div>
+        <div class="form-group" id="fruta-otro-group" style="display:none;">
+          <label>🍏 Especificar Fruta</label>
+          <input type="text" id="f-fruta-otro" placeholder="Nombre de la fruta...">
+        </div>
+        <div class="form-group">
+          <label>🌿 Variedad</label>
+          <input type="text" id="f-variedad" placeholder="Ej: Kent, Hass, Tommy...">
+        </div>
+        <div class="form-group">
+          <label>⚖️ Kg Bruto</label>
+          <input type="number" id="f-kg-bruto" placeholder="0.00" step="0.01" min="0">
+        </div>
+        <div class="form-group">
+          <label>⚖️ Kg Neto</label>
+          <input type="number" id="f-kg-neto" placeholder="0.00" step="0.01" min="0">
+        </div>
+        <div class="form-group">
+          <label>📦 N° de Jabas / Cajas</label>
+          <input type="number" id="f-jabas" placeholder="0" min="0">
+        </div>
+        <div class="form-group">
+          <label>🏭 Proveedor / Productor</label>
+          <input type="text" id="f-proveedor" placeholder="Nombre del proveedor...">
+        </div>
+        <div class="form-group">
+          <label>🌡️ Estado / Calidad</label>
+          <select id="f-estado">
+            <option value="">— Seleccionar —</option>
+            <option>Primera</option>
+            <option>Segunda</option>
+            <option>Exportación</option>
+            <option>Proceso</option>
+            <option>Rechazo</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>👤 Responsable de Recepción</label>
+          <input type="text" id="f-responsable" placeholder="Nombre del responsable...">
+        </div>
+        <div class="form-group full">
+          <label>📝 Observaciones</label>
+          <textarea id="f-obs" rows="2" placeholder="Notas adicionales..." style="resize:vertical;"></textarea>
+        </div>
+      </div>
 
-  <div class="areas-list">
-    <div class="area-item">
-      <div class="area-color" style="background:#10b981"></div>
-      <div class="area-info">
-        <div class="area-name">CAMARA DE MATERIA PRIMA</div>
-        <div class="area-range">Límite: &le; 8°C &nbsp;|&nbsp; Alerta: &gt; 8°C &nbsp;|&nbsp; Crítico: &gt; 13°C</div>
+      <div class="flex-row" style="margin-top:20px;">
+        <button class="btn btn-primary" onclick="guardarRegistro()">💾 Guardar Registro</button>
+        <button class="btn btn-secondary" onclick="limpiarFormulario()">🗑️ Limpiar</button>
       </div>
-      <span class="status-badge status-ok"><span class="dot"></span>Materia prima</span>
-    </div>
-    <div class="area-item">
-      <div class="area-color" style="background:#f59e0b"></div>
-      <div class="area-info">
-        <div class="area-name">ACONDICIONADO</div>
-        <div class="area-range">Límite: &le; 17°C &nbsp;|&nbsp; Alerta: &gt; 17°C &nbsp;|&nbsp; Crítico: &gt; 22°C</div>
-      </div>
-      <span class="status-badge status-warn"><span class="dot"></span>Acondicionado</span>
-    </div>
-    <div class="area-item">
-      <div class="area-color" style="background:#f59e0b"></div>
-      <div class="area-info">
-        <div class="area-name">EMBANDEJADO</div>
-        <div class="area-range">Límite: &le; 15°C &nbsp;|&nbsp; Alerta: &gt; 15°C &nbsp;|&nbsp; Crítico: &gt; 20°C</div>
-      </div>
-      <span class="status-badge status-warn"><span class="dot"></span>Proceso</span>
-    </div>
-    <div class="area-item">
-      <div class="area-color" style="background:#f59e0b"></div>
-      <div class="area-info">
-        <div class="area-name">LAVADO DE BANDEJAS</div>
-        <div class="area-range">Límite: &le; 18°C &nbsp;|&nbsp; Alerta: &gt; 18°C &nbsp;|&nbsp; Crítico: &gt; 23°C</div>
-      </div>
-      <span class="status-badge status-warn"><span class="dot"></span>Lavado</span>
-    </div>
-    <div class="area-item">
-      <div class="area-color" style="background:#3b82f6"></div>
-      <div class="area-info">
-        <div class="area-name">PRE ENFRIADO</div>
-        <div class="area-range">Límite: &le; 10°C &nbsp;|&nbsp; Alerta: &gt; 10°C &nbsp;|&nbsp; Crítico: &gt; 15°C</div>
-      </div>
-      <span class="status-badge status-ok"><span class="dot"></span>Pre-frío</span>
-    </div>
-    <div class="area-item">
-      <div class="area-color" style="background:#3b82f6"></div>
-      <div class="area-info">
-        <div class="area-name">EMPAQUE</div>
-        <div class="area-range">Límite: &le; 5°C &nbsp;|&nbsp; Alerta: &gt; 5°C &nbsp;|&nbsp; Crítico: &gt; 10°C</div>
-      </div>
-      <span class="status-badge status-ok"><span class="dot"></span>Empaque frío</span>
-    </div>
-    <div class="area-item">
-      <div class="area-color" style="background:#00d4aa"></div>
-      <div class="area-info">
-        <div class="area-name">TEMPERATURA PRODUCTO</div>
-        <div class="area-range">Límite: &le; -18°C &nbsp;|&nbsp; Alerta: &gt; -18°C &nbsp;|&nbsp; Crítico: &gt; -13°C</div>
-      </div>
-      <span class="status-badge status-ok"><span class="dot"></span>Producto IQF</span>
-    </div>
-    <!-- TEMPERATURA DE PRODUCTO(MP) y REEFERs: sin alertas, solo OK -->
-    <div class="area-item">
-      <div class="area-color" style="background:#00d4aa"></div>
-      <div class="area-info">
-        <div class="area-name">CAMARA DE PRODUCTO TERMINADO</div>
-        <div class="area-range">Límite: &le; -20°C &nbsp;|&nbsp; Alerta: &gt; -20°C &nbsp;|&nbsp; Crítico: &gt; -15°C</div>
-      </div>
-      <span class="status-badge status-ok"><span class="dot"></span>Producto terminado</span>
-    </div>
-    <div class="area-item">
-      <div class="area-color" style="background:#3b82f6"></div>
-      <div class="area-info">
-        <div class="area-name">DESPACHO</div>
-        <div class="area-range">Límite: &le; 5°C &nbsp;|&nbsp; Alerta: &gt; 5°C &nbsp;|&nbsp; Crítico: &gt; 10°C</div>
-      </div>
-      <span class="status-badge status-ok"><span class="dot"></span>Despacho frío</span>
-    </div>
-  </div>
-</div>
-
-<!-- ============== PANEL: EXPORTAR / BASE DE DATOS ============== -->
-<div id="panel-exportar" class="panel">
-  <div class="section-title">Conexión a Supabase (base de datos)</div>
-  <div class="info-box">
-    <strong>¿Cómo conectar a tu base de datos real?</strong><br>
-    1. Crea una cuenta gratuita en <strong>supabase.com</strong><br>
-    2. Crea un proyecto y ejecuta el SQL de abajo<br>
-    3. Reemplaza la URL y la API KEY en este archivo<br>
-    4. Los registros se enviarán directamente a tu base de datos PostgreSQL
-  </div>
-
-  <div style="margin-bottom:16px">
-    <div class="section-title">1. SQL para crear la tabla en Supabase</div>
-    <div class="code-block">
-      <button class="copy-btn" onclick="copiarSQL()">Copiar</button>
-      <span id="sqlCode"><span class="kw">CREATE TABLE</span> <span class="fn">registros_temperatura</span> (<br>
-&nbsp;&nbsp;id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">uuid</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">DEFAULT</span> <span class="fn">gen_random_uuid</span>() <span class="kw">PRIMARY KEY</span>,<br>
-&nbsp;&nbsp;fecha&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">date</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">NOT NULL</span>,<br>
-&nbsp;&nbsp;hora&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">time</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">NOT NULL</span>,<br>
-&nbsp;&nbsp;area&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">varchar</span>(<span class="str">100</span>)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">NOT NULL</span>,<br>
-&nbsp;&nbsp;temperatura&nbsp;&nbsp;<span class="fn">numeric</span>(<span class="str">5,1</span>)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">NOT NULL</span>,<br>
-&nbsp;&nbsp;estado&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">varchar</span>(<span class="str">20</span>)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">CHECK</span>(estado <span class="kw">IN</span> (<span class="str">'OK'</span>,<span class="str">'ALERTA'</span>,<span class="str">'CRITICO'</span>)),<br>
-&nbsp;&nbsp;operario&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">varchar</span>(<span class="str">100</span>)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">NOT NULL</span>,<br>
-&nbsp;&nbsp;turno&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">varchar</span>(<span class="str">50</span>),<br>
-&nbsp;&nbsp;observaciones <span class="fn">text</span>,<br>
-&nbsp;&nbsp;created_at&nbsp;&nbsp;&nbsp;<span class="fn">timestamptz</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">DEFAULT</span> <span class="fn">now</span>()<br>
-);<br><br>
-<span class="cm">-- Habilitar acceso público de lectura para Power BI</span><br>
-<span class="kw">ALTER TABLE</span> registros_temperatura <span class="kw">ENABLE ROW LEVEL SECURITY</span>;<br>
-<span class="kw">CREATE POLICY</span> <span class="str">"allow_all"</span> <span class="kw">ON</span> registros_temperatura <span class="kw">FOR ALL USING</span> (<span class="kw">true</span>);</span>
     </div>
   </div>
 
-  <div style="margin-bottom:16px">
-    <div class="section-title">2. Configuración de conexión</div>
-    <div class="form-grid">
-      <div class="form-group">
-        <label>Supabase URL</label>
-        <input type="text" id="sbUrl" placeholder="https://xxxx.supabase.co" />
+  <!-- ============ PANEL: REGISTROS ============ -->
+  <div class="panel" id="panel-registros">
+    <div class="card">
+      <div class="card-title">📋 Registros de Materia Prima</div>
+
+      <div class="search-bar">
+        <input type="text" id="search-input" placeholder="🔍 Buscar por palíticket, fruta, proveedor, placa..." oninput="filtrarRegistros()">
+        <select id="filter-fruta" onchange="filtrarRegistros()" style="min-width:130px;">
+          <option value="">Todas las frutas</option>
+        </select>
+        <button class="btn btn-secondary btn-sm" onclick="exportarCSV()">📤 Exportar CSV</button>
       </div>
-      <div class="form-group">
-        <label>API Key (anon/public)</label>
-        <input type="text" id="sbKey" placeholder="eyJhbGciOiJI..." />
-      </div>
+
+      <div id="tabla-registros"></div>
     </div>
-    <button class="btn btn-secondary" onclick="guardarConfig()" style="margin-top:12px">Guardar configuración</button>
   </div>
 
-  <div>
-    <div class="section-title">3. Conexión Power BI / Looker Studio</div>
-    <div class="code-block" style="margin-bottom:8px">
-      <span class="cm">-- URL de la API REST de Supabase para Power BI (PostgreSQL connector)</span><br>
-      <span class="cm">-- Host:    db.XXXX.supabase.co</span><br>
-      <span class="cm">-- Puerto:  5432</span><br>
-      <span class="cm">-- DB:      postgres</span><br>
-      <span class="cm">-- User:    postgres</span><br>
-      <span class="cm">-- Pass:    (la que configuraste en Supabase)</span><br><br>
-      <span class="cm">-- Query base para gráfico por área en Power BI:</span><br>
-      <span class="kw">SELECT</span> fecha, area, <span class="fn">AVG</span>(temperatura) <span class="kw">as</span> temp_promedio,<br>
-      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">MIN</span>(temperatura) <span class="kw">as</span> temp_min, <span class="fn">MAX</span>(temperatura) <span class="kw">as</span> temp_max,<br>
-      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">COUNT</span>(*) <span class="kw">as</span> total_registros<br>
-      <span class="kw">FROM</span> registros_temperatura<br>
-      <span class="kw">GROUP BY</span> fecha, area <span class="kw">ORDER BY</span> fecha <span class="kw">DESC</span>;
-    </div>
-    <div class="info-box">
-      <strong>Para Looker Studio (Google):</strong> Usa el conector PostgreSQL con las mismas credenciales. Crea un origen de datos y arrastra los campos al lienzo.<br><br>
-      <strong>Para Power BI Desktop:</strong> Obtener datos → PostgreSQL → pega las credenciales de Supabase → elige la tabla registros_temperatura.
+  <!-- ============ PANEL: IMPRIMIR ============ -->
+  <div class="panel" id="panel-print">
+    <div class="card">
+      <div class="card-title">🖨️ Imprimir Palíticket</div>
+      <div class="flex-row" style="margin-bottom:16px;">
+        <input type="text" id="print-search" placeholder="Buscar palíticket por número..." style="flex:1;">
+        <button class="btn btn-primary btn-sm" onclick="buscarParaImprimir()">🔍 Buscar</button>
+      </div>
+      <div id="print-result"></div>
     </div>
   </div>
-</div>
 
 </div><!-- /main -->
 
-<!-- TOAST -->
-<div class="toast" id="toast">
-  <span class="toast-icon" id="toastIcon">✅</span>
-  <div>
-    <div class="toast-text" id="toastText">Registro guardado</div>
-    <div class="toast-sub" id="toastSub">Los datos se enviaron correctamente</div>
+<!-- MODAL: VER REGISTRO COMPLETO -->
+<div class="modal-overlay" id="modal-detalle">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">📋 Detalle del Registro</div>
+      <button class="close-btn" onclick="cerrarModal()">✕</button>
+    </div>
+    <div id="modal-content"></div>
+    <div class="flex-row" style="margin-top:20px;">
+      <button class="btn btn-amarillo" onclick="imprimirDesdeModal()">🖨️ Imprimir Ticket</button>
+      <button class="btn btn-secondary" onclick="cerrarModal()">Cerrar</button>
+    </div>
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<!-- PALITICKET PRINT AREA (oculta) -->
+<div id="paliticket-print-area" class="paliticket-print-area" style="display:none;"></div>
+
 <script>
-// ====== ESTADO ======
-let registros = [];
-// Credenciales Supabase — fijas para todos los dispositivos
-let config = {
-  sbUrl: 'https://obnvrfvcujsrmifvlqni.supabase.co',
-  sbKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9ibnZyZnZjdWpzcm1pZnZscW5pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM1MDY3OTUsImV4cCI6MjA4OTA4Mjc5NX0.A7BilSrDzqe2rqz1Kh8fg5t-GVNxrLGYJK4IaMlVtBs'
-};
-// Sobrescribir con config local si existe
-const localConfig = JSON.parse(localStorage.getItem('temp_config') || '{}');
-if (localConfig.sbUrl) config.sbUrl = localConfig.sbUrl;
-if (localConfig.sbKey) config.sbKey = localConfig.sbKey;
-let chartAreas = null, chartHoras = null;
-
-// ====== CARGAR DESDE SUPABASE ======
-async function cargarRegistrosSupabase() {
-  if (!config.sbUrl || !config.sbKey) {
-    // Sin Supabase: cargar local
-    registros = JSON.parse(localStorage.getItem('temp_registros') || '[]');
-    renderTablaHoy();
-    renderDashboard();
-    return;
-  }
-  try {
-    const nowL = new Date();
-    const today = `${nowL.getFullYear()}-${String(nowL.getMonth()+1).padStart(2,'0')}-${String(nowL.getDate()).padStart(2,'0')}`;
-    const res = await fetch(
-      `${config.sbUrl}/rest/v1/registros_temperatura?fecha=eq.${today}&order=hora.desc&limit=1000`,
-      { headers: { 'apikey': config.sbKey, 'Authorization': `Bearer ${config.sbKey}` } }
-    );
-    if (res.ok) {
-      const data = await res.json();
-      // Mapear campos de Supabase al formato local
-      registros = data.map(r => ({
-        id: r.id,
-        supabase_id: r.id,
-        fecha: r.fecha,
-        hora: r.hora ? r.hora.slice(0,5) : '',
-        area: r.area,
-        temperatura: parseFloat(r.temperatura),
-        estado: r.estado,
-        operario: r.operario,
-        turno: r.turno,
-        observaciones: r.observaciones,
-        created_at: r.created_at
-      }));
-    }
-  } catch(e) {
-    console.error('Error cargando desde Supabase:', e);
-    registros = JSON.parse(localStorage.getItem('temp_registros') || '[]');
-  }
-  renderTablaHoy();
-  renderDashboard();
+// ================== STORAGE ==================
+function getDB() {
+  try { return JSON.parse(localStorage.getItem('ftp_registros') || '[]'); }
+  catch(e) { return []; }
+}
+function saveDB(db) {
+  localStorage.setItem('ftp_registros', JSON.stringify(db));
+}
+function getCounter() {
+  return parseInt(localStorage.getItem('ftp_counter') || '0');
+}
+function incCounter() {
+  const n = getCounter() + 1;
+  localStorage.setItem('ftp_counter', n);
+  return n;
 }
 
-async function cargarTodosRegistros() {
-  if (!config.sbUrl || !config.sbKey) {
-    registros = JSON.parse(localStorage.getItem('temp_registros') || '[]');
-    return;
-  }
-  try {
-    const res = await fetch(
-      `${config.sbUrl}/rest/v1/registros_temperatura?order=fecha.desc,hora.desc&limit=1000`,
-      { headers: { 'apikey': config.sbKey, 'Authorization': `Bearer ${config.sbKey}` } }
-    );
-    if (res.ok) {
-      const data = await res.json();
-      registros = data.map(r => ({
-        id: r.id,
-        supabase_id: r.id,
-        fecha: r.fecha,
-        hora: r.hora ? r.hora.slice(0,5) : '',
-        area: r.area,
-        temperatura: parseFloat(r.temperatura),
-        estado: r.estado,
-        operario: r.operario,
-        turno: r.turno,
-        observaciones: r.observaciones,
-        created_at: r.created_at
-      }));
-    }
-  } catch(e) {
-    console.error('Error:', e);
-    registros = JSON.parse(localStorage.getItem('temp_registros') || '[]');
-  }
-}
+// ================== SCANNER ==================
+let html5QrCode = null;
+let lastScannedCode = null;
 
-// ====== RANGOS POR ÁREA ======
-const rangos = {
-  'CAMARA DE MATERIA PRIMA':      { limite: 8,   critico: 13  },
-  'ACONDICIONADO':               { limite: 17,  critico: 22  },
-  'EMBANDEJADO':                  { limite: 15,  critico: 20  },
-  'LAVADO DE BANDEJAS':           { limite: 18,  critico: 23  },
-  'PRE ENFRIADO':                 { limite: 10,  critico: 15  },
-  'EMPAQUE':                      { limite: 5,   critico: 10  },
-  'TEMPERATURA PRODUCTO':         { limite: -18, critico: -13 },
-  'CAMARA DE PRODUCTO TERMINADO': { limite: -20, critico: -15 },
-  'DESPACHO':                     { limite: 5,   critico: 10  },
-  // Nuevas áreas: Temperatura de producto para materia prima
-  'TEMPERATURA DE PRODUCTO(MP)':  { limite: -20, critico: -15 },
-  // Reefers 1-10: rango de refrigeración estándar (0 a 8°C)
-  'REEFER 1':                     { limite: 8,   critico: 13  },
-  'REEFER 2':                     { limite: 8,   critico: 13  },
-  'REEFER 3':                     { limite: 8,   critico: 13  },
-  'REEFER 4':                     { limite: 8,   critico: 13  },
-  'REEFER 5':                     { limite: 8,   critico: 13  },
-  'REEFER 6':                     { limite: 8,   critico: 13  },
-  'REEFER 7':                     { limite: 8,   critico: 13  },
-  'REEFER 8':                     { limite: 8,   critico: 13  },
-  'REEFER 9':                     { limite: 8,   critico: 13  },
-  'REEFER 10':                    { limite: 8,   critico: 13  },
-};
-
-function getEstado(area, temp) {
-  const r = rangos[area];
-  if (!r) return 'OK';
-  // REEFERs y TEMPERATURA DE PRODUCTO(MP): siempre OK (sin alertas)
-  if (area.startsWith('REEFER') || area === 'TEMPERATURA DE PRODUCTO(MP)') return 'OK';
-  // Para areas de congelado el limite es negativo: superar = subir por encima del limite
-  if (r.limite < 0) {
-    if (temp > r.critico) return 'CRITICO';
-    if (temp > r.limite)  return 'ALERTA';
-  } else {
-    if (temp > r.critico) return 'CRITICO';
-    if (temp > r.limite)  return 'ALERTA';
-  }
-  return 'OK';
-}
-
-// ====== RELOJ ======
-function actualizarReloj() {
-  const now = new Date();
-  const timeStr = now.toLocaleTimeString('es-PE', {timeZone:'America/Lima', hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false});
-  const dateStr = now.toLocaleDateString('es-PE', {timeZone:'America/Lima', weekday:'long', day:'numeric', month:'long', year:'numeric' });
-  const rc = document.getElementById('registroClock');
-  const rd = document.getElementById('registroDate');
-  const rt = document.getElementById('registroTurno');
-  if (rc) rc.textContent = timeStr;
-  if (rd) rd.textContent = dateStr;
-  if (rt) {
-    const h = now.getHours();
-    rt.textContent = (h >= 6 && h <= 18) ? 'TURNO DIA (06:00-17:00)' : 'TURNO NOCHE (18:00-05:00)';
-  }
-}
-setInterval(actualizarReloj, 1000);
-actualizarReloj();
-
-function calcularTurno(horaStr) {
-  if (!horaStr) return '';
-  const h = parseInt(horaStr.split(':')[0]);
-  // Turno Dia: 06:00 a 18:00 (h >= 6 && h <= 18)
-  // Turno Noche: 19:00 a 05:00
-  if (h >= 6 && h <= 18) return 'TURNO DIA (06:00-17:00)';
-  return 'TURNO NOCHE (18:00-05:00)';
-}
-
-// ====== SELECTOR DE FORMATO (grupo de áreas) ======
-var currentFormato = 'mp';
-
-// Definición de áreas por formato — el value es lo que se guarda en Supabase
-var FORMATO_AREAS = {
-  mp: [
-    {value: 'CAMARA DE MATERIA PRIMA', label: 'CAMARA DE MATERIA PRIMA'},
-    {value: 'TEMPERATURA DE PRODUCTO(MP)', label: 'TEMPERATURA DE PRODUCTO(MP)'},
-    {value: 'REEFER 1', label: 'REEFER 1'},
-    {value: 'REEFER 2', label: 'REEFER 2'},
-    {value: 'REEFER 3', label: 'REEFER 3'},
-    {value: 'REEFER 4', label: 'REEFER 4'},
-    {value: 'REEFER 5', label: 'REEFER 5'},
-    {value: 'REEFER 6', label: 'REEFER 6'},
-    {value: 'REEFER 7', label: 'REEFER 7'},
-    {value: 'REEFER 8', label: 'REEFER 8'},
-    {value: 'REEFER 9', label: 'REEFER 9'},
-    {value: 'REEFER 10', label: 'REEFER 10'}
-  ],
-  proceso: [
-    {value: 'ACONDICIONADO', label: 'ACONDICIONADO'},
-    {value: 'EMBANDEJADO', label: 'EMBANDEJADO'},
-    {value: 'LAVADO DE BANDEJAS', label: 'LAVADO DE BANDEJAS'},
-    {value: 'PRE ENFRIADO', label: 'PRE ENFRIADO'}
-  ],
-  empaque: [
-    {value: 'TEMPERATURA PRODUCTO', label: 'TEMPERATURA DE PRODUCTO'},
-    {value: 'EMPAQUE', label: 'EMPAQUE'},
-    {value: 'CAMARA DE PRODUCTO TERMINADO', label: 'CAMARA DE PRODUCTO TERMINADO'},
-    {value: 'DESPACHO', label: 'DESPACHO'}
-  ]
-};
-
-// Función para cambiar el formato activo y actualizar las opciones del dropdown de áreas
-function selectFormato(fmt) {
-  currentFormato = fmt;
-  // Actualizar pestaña activa
-  document.querySelectorAll('.format-tab').forEach(function(btn) {
-    btn.classList.toggle('active', btn.dataset.fmt === fmt);
+function startScanner() {
+  if (html5QrCode && html5QrCode._isScanning) return;
+  html5QrCode = new Html5Qrcode("reader");
+  const config = { fps: 10, qrbox: { width: 260, height: 180 }, aspectRatio: 1.6 };
+  html5QrCode.start(
+    { facingMode: "environment" },
+    config,
+    onScanSuccess,
+    null
+  ).catch(err => {
+    // Try front camera fallback
+    html5QrCode.start({ facingMode: "user" }, config, onScanSuccess, null)
+      .catch(() => showAlert('alert-new', '❌ No se pudo acceder a la cámara. Usa el ingreso manual.', 'error'));
   });
-
-  // Cambiar etiqueta según el formato — "ZONA / REEFERS" para materia prima, "Área" para los demás
-  var areaLabel = document.getElementById('areaLabel');
-  if (areaLabel) {
-    areaLabel.textContent = (fmt === 'mp') ? 'ZONA / REEFERS' : 'Área';
-  }
-
-  // Reconstruir opciones del select de área
-  var select = document.getElementById('area');
-  select.innerHTML = '<option value="">— Seleccionar —</option>';
-  FORMATO_AREAS[fmt].forEach(function(a) {
-    var opt = document.createElement('option');
-    opt.value = a.value;
-    opt.textContent = a.label;
-    select.appendChild(opt);
-  });
-
-  // Limpiar selección actual
-  select.value = '';
-  updateAreaInfo();
 }
 
-// ====== INIT ======
-window.onload = async () => {
-  const today = new Date().toLocaleDateString('sv', {timeZone:'America/Lima'});
-  document.getElementById('fecha').value = today;
+function stopScanner() {
+  if (html5QrCode && html5QrCode._isScanning) {
+    html5QrCode.stop().catch(() => {});
+  }
+}
+
+function onScanSuccess(decodedText) {
+  lastScannedCode = decodedText.trim();
+  document.getElementById('scan-value').textContent = lastScannedCode;
+  document.getElementById('scan-result-box').classList.add('show');
+
+  // Check if code exists in DB
+  const db = getDB();
+  const found = db.find(r => r.paliticket === lastScannedCode || r.codigoBarras === lastScannedCode);
+  const area = document.getElementById('scan-action-area');
+  const info = document.getElementById('scan-found-info');
+
+  area.style.display = 'block';
+  if (found) {
+    info.innerHTML = `<div class="alert alert-success">✅ Registro encontrado: <strong>${found.paliticket}</strong> — ${found.fruta} | ${found.proveedor}</div>`;
+  } else {
+    info.innerHTML = `<div class="alert alert-info">ℹ️ Código no registrado. Puedes crear un nuevo registro.</div>`;
+  }
+
+  // Beep (visual feedback)
+  document.getElementById('scan-result-box').style.borderColor = '#4caf50';
+  setTimeout(() => { document.getElementById('scan-result-box').style.borderColor = 'var(--verde-claro)'; }, 500);
+}
+
+function verRegistroEscaneado() {
+  if (!lastScannedCode) return;
+  const db = getDB();
+  const found = db.find(r => r.paliticket === lastScannedCode || r.codigoBarras === lastScannedCode);
+  if (found) abrirModal(found);
+  else alert('No se encontró registro con este código.');
+}
+
+function nuevoDesdeEscaneo() {
+  if (!lastScannedCode) return;
+  switchTab('new');
+  document.getElementById('f-paliticket').value = lastScannedCode;
+  document.getElementById('pali-num-display').textContent = lastScannedCode;
+  document.getElementById('pali-generado-info').style.display = 'block';
+}
+
+function buscarManual() {
+  const code = document.getElementById('manual-code').value.trim();
+  if (!code) return;
+  lastScannedCode = code;
+  onScanSuccess(code);
+}
+
+// ================== PALITICKET ==================
+function generarPaliticket() {
+  const n = incCounter();
+  const fecha = new Date();
+  const y = fecha.getFullYear();
+  const m = String(fecha.getMonth()+1).padStart(2,'0');
+  const d = String(fecha.getDate()).padStart(2,'0');
+  const num = String(n).padStart(4,'0');
+  const pali = `PAL-${y}${m}${d}-${num}`;
+  document.getElementById('f-paliticket').value = pali;
+  document.getElementById('pali-num-display').textContent = pali;
+  document.getElementById('pali-generado-info').style.display = 'block';
+  // Set current datetime
   const now = new Date();
-  const horaInicial = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-  document.getElementById('hora').value = horaInicial;
-  document.getElementById('turno').value = calcularTurno(horaInicial);
-  if (config.sbUrl) document.getElementById('sbUrl').value = config.sbUrl;
-  if (config.sbKey) document.getElementById('sbKey').value = config.sbKey;
-  // Inicializar con formato "Cámaras de Materia Prima" seleccionado
-  selectFormato('mp');
-  await cargarRegistrosSupabase();
-};
-
-// ====== TABS ======
-async function showPanel(id) {
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('panel-'+id).classList.add('active');
-  event.target.classList.add('active');
-  if (id === 'dashboard') {
-    await cargarRegistrosSupabase();
-    setTimeout(() => { renderChartAreas(); renderChartHoras(); }, 100);
-  }
-  if (id === 'historial') {
-    await cargarTodosRegistros();
-    renderHistorial();
-  }
-  if (id === 'registro') {
-    await cargarRegistrosSupabase();
-  }
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  document.getElementById('f-fecha').value = now.toISOString().slice(0,16);
 }
 
-// ====== UPDATE TEMP STATUS ======
-function updateAreaInfo() {
-  const area = document.getElementById('area').value;
-  const r = rangos[area];
-  // REEFERs y PRODUCTO(MP): no mostrar límites ni alertas
-  if (r && !area.startsWith('REEFER') && area !== 'TEMPERATURA DE PRODUCTO(MP)') {
-    document.getElementById('rangoInfo').textContent = `Límite máximo: ${r.limite}°C · Crítico: +5°C sobre el límite (${r.critico}°C)`;
-  } else {
-    document.getElementById('rangoInfo').textContent = '';
-  }
-  updateTempStatus();
-}
+// ================== FORM ==================
+document.getElementById('f-fruta').addEventListener('change', function() {
+  document.getElementById('fruta-otro-group').style.display = this.value === 'otro' ? 'block' : 'none';
+});
 
-function updateTempStatus() {
-  const val = parseFloat(document.getElementById('temperatura').value);
-  const area = document.getElementById('area').value;
-  const indicator = document.getElementById('tempIndicator');
-  const statusEl = document.getElementById('tempStatus');
-  if (isNaN(val) || !area) { indicator.style.background = 'var(--muted)'; statusEl.innerHTML = ''; return; }
-  const estado = getEstado(area, val);
-  if (estado === 'OK') {
-    indicator.style.background = 'var(--success)';
-    statusEl.innerHTML = '<span class="status-badge status-ok"><span class="dot"></span>Temperatura correcta</span>';
-  } else if (estado === 'ALERTA') {
-    indicator.style.background = 'var(--warn)';
-    statusEl.innerHTML = '<span class="status-badge status-warn"><span class="dot"></span>⚠ Fuera de rango</span>';
-  } else {
-    indicator.style.background = 'var(--danger)';
-    statusEl.innerHTML = '<span class="status-badge status-danger"><span class="dot"></span>🚨 Temperatura CRÍTICA</span>';
-  }
-}
+function guardarRegistro() {
+  const pali = document.getElementById('f-paliticket').value.trim();
+  if (!pali) { showAlert('alert-new', '⚠️ Genera primero el número de palíticket.', 'error'); return; }
 
-// ====== GUARDAR REGISTRO ======
-async function guardarRegistro() {
-  const area = document.getElementById('area').value;
-  const operario = document.getElementById('operario').value;
-  const temp = parseFloat(document.getElementById('temperatura').value);
-  const hora = document.getElementById('hora').value;
-  const fecha = document.getElementById('fecha').value;
-  const obs = document.getElementById('observaciones').value;
-  const turno = document.getElementById('turno').value;
+  const frutaBase = document.getElementById('f-fruta').value;
+  const fruta = frutaBase === 'otro' ? document.getElementById('f-fruta-otro').value : frutaBase;
+  if (!fruta) { showAlert('alert-new', '⚠️ Selecciona o ingresa el tipo de fruta.', 'error'); return; }
 
-  if (!area || !operario || isNaN(temp) || !hora || !fecha) {
-    showToast('❌', 'Campos incompletos', 'Completa área, operario, temperatura y hora', 'danger');
-    return;
-  }
+  const kgNeto = parseFloat(document.getElementById('f-kg-neto').value);
+  if (!kgNeto || kgNeto <= 0) { showAlert('alert-new', '⚠️ Ingresa los kg neto.', 'error'); return; }
 
-  const estado = getEstado(area, temp);
-  // Solo los campos que acepta Supabase — sin id ni created_at (los genera automáticamente)
+  const db = getDB();
+  const existe = db.find(r => r.paliticket === pali);
+  if (existe) { showAlert('alert-new', '⚠️ Este palíticket ya está registrado.', 'error'); return; }
+
   const registro = {
-    fecha,
-    hora,
-    area,
-    temperatura: parseFloat(temp),
-    estado,
-    operario,
-    turno: turno || null,
-    observaciones: obs.trim() !== '' ? obs.trim() : null
+    paliticket: pali,
+    codigoBarras: pali,
+    fecha: document.getElementById('f-fecha').value,
+    carro: document.getElementById('f-carro').value.trim().toUpperCase(),
+    fruta,
+    variedad: document.getElementById('f-variedad').value.trim(),
+    kgBruto: parseFloat(document.getElementById('f-kg-bruto').value) || 0,
+    kgNeto,
+    jabas: parseInt(document.getElementById('f-jabas').value) || 0,
+    proveedor: document.getElementById('f-proveedor').value.trim(),
+    estado: document.getElementById('f-estado').value,
+    responsable: document.getElementById('f-responsable').value.trim(),
+    observaciones: document.getElementById('f-obs').value.trim(),
+    registradoEn: new Date().toISOString()
   };
 
-  // Guardar local como respaldo
-  const localReg = {...registro, id: Date.now(), created_at: new Date().toISOString()};
-  if (!config.sbUrl || !config.sbKey) {
-    registros.push(localReg);
-    localStorage.setItem('temp_registros', JSON.stringify(registros));
-  }
+  db.push(registro);
+  saveDB(db);
+  actualizarStats();
+  actualizarFiltroFrutas();
 
-  // Enviar a Supabase si está configurado
-  if (config.sbUrl && config.sbKey) {
-    try {
-      const res = await fetch(`${config.sbUrl}/rest/v1/registros_temperatura`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': config.sbKey,
-          'Authorization': `Bearer ${config.sbKey}`,
-          'Prefer': 'return=minimal'
-        },
-        body: JSON.stringify(registro)
-      });
-      if (res.ok) {
-        showToast('✅', 'Registro guardado en Supabase', `${area} · ${temp}°C · ${hora}`);
-        await cargarRegistrosSupabase();
-      } else {
-        const errText = await res.text();
-        console.error('Supabase error:', res.status, errText);
-        showToast('⚠️', 'Error ' + res.status, errText.slice(0, 120));
-      }
-    } catch (e) {
-      console.error('Fetch error:', e);
-      showToast('⚠️', 'Guardado local', 'Sin conexión a Supabase');
+  showAlert('alert-new', `✅ Registro <strong>${pali}</strong> guardado correctamente.`, 'success');
+  
+  // Offer to print
+  setTimeout(() => {
+    if (confirm('¿Deseas imprimir el palíticket ahora?')) {
+      imprimirTicket(registro);
     }
-  } else {
-    showToast('✅', 'Registro guardado localmente', `${area} · ${temp}°C · ${hora}`);
-  }
-
-  // Reset temp y obs
-  document.getElementById('temperatura').value = '';
-  document.getElementById('observaciones').value = '';
-  document.getElementById('tempStatus').innerHTML = '';
-  document.getElementById('tempIndicator').style.background = 'var(--muted)';
-  // Hora se mantiene como fue registrada (no se resetea a hora actual)
-
-  if (!config.sbUrl || !config.sbKey) {
-    renderTablaHoy();
-    renderDashboard();
-  }
+  }, 300);
 }
 
-// ====== TABLA HOY ======
-function renderTablaHoy() {
-  // registros ya están filtrados por hoy desde Supabase, mostrar todos
-  const hoy = [...registros].sort((a,b) => b.hora.localeCompare(a.hora));
-  const tbody = document.getElementById('tablaRegistros');
-  const contador = document.getElementById('contadorHoy');
-  if (contador) contador.textContent = hoy.length + ' registros';
-  if (hoy.length === 0) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px">Sin registros aún hoy</td></tr>'; return; }
-  tbody.innerHTML = hoy.map(r => `
-    <tr>
-      <td style="font-family:'DM Mono',monospace;font-size:13px;white-space:nowrap">${r.hora}</td>
-      <td style="font-size:12px;white-space:nowrap">${r.area}</td>
-      <td style="white-space:nowrap"><span class="temp-val temp-${r.estado==='OK'?'ok':r.estado==='ALERTA'?'warn':'danger'}">${r.temperatura}°C</span></td>
-      <td style="white-space:nowrap"><span class="status-badge status-${r.estado==='OK'?'ok':r.estado==='ALERTA'?'warn':'danger'}"><span class="dot"></span>${r.estado}</span></td>
-      <td style="font-size:12px;white-space:nowrap">${r.operario}</td>
-      <td style="font-size:12px;color:var(--muted);white-space:nowrap;max-width:160px;overflow:hidden;text-overflow:ellipsis">${r.observaciones||'—'}</td>
-      <td style="white-space:nowrap">
-        <button class="btn-icon" onclick="abrirEditar('${r.id}')" title="Editar">✏️</button>
-        <button class="btn-icon del" onclick="confirmarEliminar('${r.id}')" title="Eliminar">🗑</button>
+function limpiarFormulario() {
+  ['f-paliticket','f-fecha','f-carro','f-variedad','f-kg-bruto','f-kg-neto','f-jabas','f-proveedor','f-responsable','f-obs','f-fruta-otro'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('f-fruta').value = '';
+  document.getElementById('f-estado').value = '';
+  document.getElementById('pali-generado-info').style.display = 'none';
+  document.getElementById('fruta-otro-group').style.display = 'none';
+  document.getElementById('alert-new').innerHTML = '';
+}
+
+// ================== TABLA ==================
+function renderTabla(data) {
+  const el = document.getElementById('tabla-registros');
+  if (!data.length) {
+    el.innerHTML = `<div class="empty-state"><div class="icon">📦</div><p>No hay registros aún.<br>Crea el primero desde "Nuevo Registro".</p></div>`;
+    return;
+  }
+  let html = `<div class="table-wrap"><table>
+    <thead><tr>
+      <th>Palíticket</th><th>Fecha</th><th>Carro</th><th>Fruta</th><th>Variedad</th>
+      <th>Kg Neto</th><th>Jabas</th><th>Proveedor</th><th>Estado</th><th>Acciones</th>
+    </tr></thead><tbody>`;
+  data.forEach(r => {
+    const fecha = r.fecha ? new Date(r.fecha).toLocaleString('es-PE', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+    const badgeClass = r.estado === 'Exportación' ? 'badge-verde' : 'badge-naranja';
+    html += `<tr>
+      <td><span style="font-weight:700;color:var(--amarillo);">${r.paliticket}</span></td>
+      <td>${fecha}</td>
+      <td>${r.carro || '—'}</td>
+      <td>${r.fruta}</td>
+      <td>${r.variedad || '—'}</td>
+      <td><strong>${r.kgNeto?.toFixed(2) || '—'}</strong> kg</td>
+      <td>${r.jabas || '—'}</td>
+      <td>${r.proveedor || '—'}</td>
+      <td>${r.estado ? `<span class="badge ${badgeClass}">${r.estado}</span>` : '—'}</td>
+      <td>
+        <button class="btn btn-secondary btn-sm" onclick='abrirModal(${JSON.stringify(r).replace(/'/g,"&#39;")})'>👁️</button>
+        <button class="btn btn-amarillo btn-sm" onclick='imprimirTicket(${JSON.stringify(r).replace(/'/g,"&#39;")})'>🖨️</button>
+        <button class="btn btn-danger btn-sm" onclick="eliminarRegistro('${r.paliticket}')">🗑️</button>
       </td>
-    </tr>`).join('');
+    </tr>`;
+  });
+  html += `</tbody></table></div>`;
+  el.innerHTML = html;
 }
 
-// ====== HISTORIAL ======
-function renderHistorial(filtro = {}) {
-  let data = [...registros].sort((a,b) => (b.fecha+b.hora).localeCompare(a.fecha+a.hora));
-  if (filtro.fecha) data = data.filter(r => r.fecha === filtro.fecha);
-  if (filtro.area)  data = data.filter(r => r.area === filtro.area);
-  document.getElementById('historialCount').textContent = `${data.length} registros`;
-  const tbody = document.getElementById('tablaHistorial');
-  if (data.length === 0) { tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:24px">Sin registros con ese filtro</td></tr>'; return; }
-  tbody.innerHTML = data.map(r => `
-    <tr>
-      <td style="font-size:12px;font-family:'DM Mono',monospace">${r.fecha}</td>
-      <td style="font-size:12px;font-family:'DM Mono',monospace">${r.hora}</td>
-      <td style="font-size:13px">${r.area}</td>
-      <td><span class="temp-val temp-${r.estado==='OK'?'ok':r.estado==='ALERTA'?'warn':'danger'}">${r.temperatura}°C</span></td>
-      <td><span class="status-badge status-${r.estado==='OK'?'ok':r.estado==='ALERTA'?'warn':'danger'}"><span class="dot"></span>${r.estado}</span></td>
-      <td style="font-size:12px">${r.turno||'—'}</td>
-      <td style="font-size:12px">${r.operario}</td>
-      <td style="font-size:11px;color:var(--muted);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.observaciones||'—'}</td>
-    </tr>`).join('');
-}
-async function filtrarHistorial() {
-  await cargarTodosRegistros();
-  renderHistorial({ fecha: document.getElementById('filtroFecha').value, area: document.getElementById('filtroArea').value });
+function filtrarRegistros() {
+  const q = document.getElementById('search-input').value.toLowerCase();
+  const fFruta = document.getElementById('filter-fruta').value;
+  const db = getDB();
+  const filtrados = db.filter(r => {
+    const matchQ = !q || [r.paliticket, r.fruta, r.variedad, r.proveedor, r.carro, r.responsable].some(v => v?.toLowerCase().includes(q));
+    const matchF = !fFruta || r.fruta === fFruta;
+    return matchQ && matchF;
+  }).reverse();
+  renderTabla(filtrados);
 }
 
-// ====== EXPORT CSV ======
+function eliminarRegistro(pali) {
+  if (!confirm(`¿Eliminar el registro ${pali}?`)) return;
+  const db = getDB().filter(r => r.paliticket !== pali);
+  saveDB(db);
+  filtrarRegistros();
+  actualizarStats();
+}
+
+function actualizarFiltroFrutas() {
+  const db = getDB();
+  const frutas = [...new Set(db.map(r => r.fruta))].sort();
+  const sel = document.getElementById('filter-fruta');
+  const current = sel.value;
+  sel.innerHTML = '<option value="">Todas las frutas</option>' + frutas.map(f => `<option value="${f}">${f}</option>`).join('');
+  sel.value = current;
+}
+
 function exportarCSV() {
-  const headers = ['id','fecha','hora','area','temperatura','estado','operario','turno','observaciones','created_at'];
-  const rows = registros.map(r => headers.map(h => `"${(r[h]||'').toString().replace(/"/g,'""')}"`).join(','));
-  const csv = [headers.join(','), ...rows].join('\n');
-  const blob = new Blob(['\uFEFF'+csv], { type: 'text/csv;charset=utf-8;' });
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-  a.download = `temperaturas_${new Date().toISOString().split('T')[0]}.csv`; a.click();
+  const db = getDB();
+  if (!db.length) { alert('No hay registros para exportar.'); return; }
+  const headers = ['Paliticket','Fecha','Carro','Fruta','Variedad','Kg Bruto','Kg Neto','Jabas','Proveedor','Estado','Responsable','Observaciones'];
+  const rows = db.map(r => [r.paliticket, r.fecha, r.carro, r.fruta, r.variedad, r.kgBruto, r.kgNeto, r.jabas, r.proveedor, r.estado, r.responsable, r.observaciones]);
+  const csv = [headers, ...rows].map(row => row.map(v => `"${(v||'').toString().replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `FTP_Registros_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
 }
 
-// ====== DASHBOARD ======
-function renderDashboard() {
-  const today = new Date().toISOString().split('T')[0];
-  const hoy = registros.filter(r => r.fecha === today);
-  const areas = Object.keys(rangos);
-  const cardColors = { 'CAMARA DE MATERIA PRIMA':'cold','ACONDICIONADO':'ambient','EMBANDEJADO':'ambient','LAVADO DE BANDEJAS':'ambient','PRE ENFRIADO':'cold','EMPAQUE':'cold','TEMPERATURA PRODUCTO':'frozen','CAMARA DE PRODUCTO TERMINADO':'frozen','DESPACHO':'cold','TEMPERATURA DE PRODUCTO(MP)':'frozen','REEFER 1':'cold','REEFER 2':'cold','REEFER 3':'cold','REEFER 4':'cold','REEFER 5':'cold','REEFER 6':'cold','REEFER 7':'cold','REEFER 8':'cold','REEFER 9':'cold','REEFER 10':'cold' };
-  const container = document.getElementById('dashCards');
-  container.innerHTML = areas.map(area => {
-    const regs = hoy.filter(r => r.area === area).sort((a,b) => b.hora.localeCompare(a.hora));
-    const ultimo = regs[0];
-    const color = ultimo ? (ultimo.estado==='CRITICO'?'critical':ultimo.estado==='ALERTA'?'ambient':cardColors[area]||'cold') : cardColors[area]||'cold';
-    const estadoColor = ultimo ? (ultimo.estado==='OK' ? 'var(--success)' : ultimo.estado==='ALERTA' ? 'var(--warn)' : 'var(--danger)') : 'var(--muted)';
-    const estadoBg   = ultimo ? (ultimo.estado==='OK' ? 'rgba(16,185,129,0.15)' : ultimo.estado==='ALERTA' ? 'rgba(245,158,11,0.15)' : 'rgba(239,68,68,0.15)') : 'transparent';
-    const estadoLabel= ultimo ? (ultimo.estado==='OK' ? '✓ ÓPTIMO' : ultimo.estado==='ALERTA' ? '⚠ ALERTA' : '🚨 CRÍTICO') : '— Sin datos';
-    return `<div class="dash-card ${color}">
-      <div class="dash-area">${area}</div>
-      <div class="dash-temp">${ultimo ? ultimo.temperatura : '—'}<span class="unit">°C</span></div>
-      <div class="dash-last">${ultimo ? `Última: ${ultimo.hora}` : 'Sin datos hoy'}</div>
-      <div class="dash-person" style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);">
-        <span style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:700;letter-spacing:0.5px;background:${estadoBg};color:${estadoColor};">${estadoLabel}</span>
+// ================== MODAL ==================
+let currentRecord = null;
+function abrirModal(r) {
+  currentRecord = r;
+  const fecha = r.fecha ? new Date(r.fecha).toLocaleString('es-PE', {weekday:'long',day:'2-digit',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+  document.getElementById('modal-content').innerHTML = `
+    <div class="detail-grid">
+      <div class="detail-item highlight" style="grid-column:1/-1;">
+        <div class="dk">🎫 Número de Palíticket</div>
+        <div class="dv">${r.paliticket}</div>
       </div>
+      <div class="detail-item"><div class="dk">📅 Fecha</div><div class="dv" style="font-size:13px;">${fecha}</div></div>
+      <div class="detail-item"><div class="dk">🚚 Carro / Placa</div><div class="dv">${r.carro || '—'}</div></div>
+      <div class="detail-item"><div class="dk">🍎 Fruta</div><div class="dv">${r.fruta}</div></div>
+      <div class="detail-item"><div class="dk">🌿 Variedad</div><div class="dv">${r.variedad || '—'}</div></div>
+      <div class="detail-item"><div class="dk">⚖️ Kg Bruto</div><div class="dv">${r.kgBruto?.toFixed(2) || '—'} kg</div></div>
+      <div class="detail-item"><div class="dk">⚖️ Kg Neto</div><div class="dv">${r.kgNeto?.toFixed(2) || '—'} kg</div></div>
+      <div class="detail-item"><div class="dk">📦 Jabas / Cajas</div><div class="dv">${r.jabas || '—'}</div></div>
+      <div class="detail-item"><div class="dk">🏭 Proveedor</div><div class="dv">${r.proveedor || '—'}</div></div>
+      <div class="detail-item"><div class="dk">🌡️ Estado/Calidad</div><div class="dv">${r.estado || '—'}</div></div>
+      <div class="detail-item" style="grid-column:1/-1;"><div class="dk">👤 Responsable</div><div class="dv">${r.responsable || '—'}</div></div>
+      ${r.observaciones ? `<div class="detail-item" style="grid-column:1/-1;"><div class="dk">📝 Observaciones</div><div class="dv" style="font-size:13px;">${r.observaciones}</div></div>` : ''}
     </div>`;
-  }).join('');
+  document.getElementById('modal-detalle').classList.add('open');
 }
+function cerrarModal() { document.getElementById('modal-detalle').classList.remove('open'); }
+function imprimirDesdeModal() { if (currentRecord) imprimirTicket(currentRecord); }
 
-// ====== CHARTS ======
-const AREA_COLORS = ['#00d4aa','#3b82f6','#f59e0b','#8b5cf6','#ef4444','#10b981','#06b6d4'];
-
-function renderChartAreas() {
-  const today = new Date().toISOString().split('T')[0];
-  const hoy = registros.filter(r => r.fecha === today);
-  const areas = Object.keys(rangos);
-  const promedios = areas.map(a => {
-    const regs = hoy.filter(r => r.area === a);
-    return regs.length ? (regs.reduce((s,r) => s+r.temperatura, 0)/regs.length).toFixed(1) : null;
-  });
-  const ctx = document.getElementById('chartAreas').getContext('2d');
-  if (chartAreas) chartAreas.destroy();
-  chartAreas = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: areas.map(a => a.replace('Cámara Frigorífica', 'Cám. F.')),
-      datasets: [{ label: 'Temp. promedio (°C)', data: promedios, backgroundColor: AREA_COLORS.map(c => c+'99'), borderColor: AREA_COLORS, borderWidth: 2, borderRadius: 6 }]
-    },
-    options: {
-      responsive: true, plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.y !== null ? ctx.parsed.y+'°C' : 'Sin datos'}` } } },
-      scales: { x: { ticks: { color: '#64748b', font: { size: 11 } }, grid: { color: 'rgba(255,255,255,0.05)' } }, y: { ticks: { color: '#64748b', callback: v => parseFloat(v).toFixed(1)+'°C' }, grid: { color: 'rgba(255,255,255,0.07)' } } }
-    }
-  });
-}
-
-function renderChartHoras() { actualizarChartHoras(); }
-
-function actualizarChartHoras() {
-  const today = new Date().toISOString().split('T')[0];
-  const areaFiltro = document.getElementById('filtroAreaChart').value;
-  let data = registros.filter(r => r.fecha === today);
-  if (areaFiltro) data = data.filter(r => r.area === areaFiltro);
-  const horas = Array.from({length: 24}, (_,i) => `${String(i).padStart(2,'0')}:00`);
-  const puntos = horas.map(h => {
-    const regs = data.filter(r => r.hora.startsWith(h.slice(0,2)));
-    return regs.length ? (regs.reduce((s,r) => s+r.temperatura, 0)/regs.length).toFixed(1) : null;
-  });
-  const ctx = document.getElementById('chartHoras').getContext('2d');
-  if (chartHoras) chartHoras.destroy();
-  chartHoras = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: horas,
-      datasets: [{ label: areaFiltro || 'Promedio todas las áreas', data: puntos, borderColor: '#00d4aa', backgroundColor: 'rgba(0,212,170,0.08)', borderWidth: 2, pointRadius: 4, pointBackgroundColor: '#00d4aa', tension: 0.3, spanGaps: true }]
-    },
-    options: {
-      responsive: true, plugins: { legend: { labels: { color: '#94a3b8', font: { size: 12 } } } },
-      scales: { x: { ticks: { color: '#64748b', maxRotation: 45, font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' } }, y: { ticks: { color: '#64748b', callback: v => parseFloat(v).toFixed(1)+'°C' }, grid: { color: 'rgba(255,255,255,0.07)' } } }
-    }
-  });
-}
-
-// ====== TOAST ======
-function showToast(icon, text, sub, type='success') {
-  const t = document.getElementById('toast');
-  document.getElementById('toastIcon').textContent = icon;
-  document.getElementById('toastText').textContent = text;
-  document.getElementById('toastSub').textContent = sub;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3500);
-}
-
-// ====== CONFIG ======
-function guardarConfig() {
-  config.sbUrl = document.getElementById('sbUrl').value.trim().replace(/\/$/, '');
-  config.sbKey = document.getElementById('sbKey').value.trim();
-  localStorage.setItem('temp_config', JSON.stringify(config));
-  showToast('✅', 'Configuración guardada', 'Se usará Supabase para nuevos registros');
-}
-
-// ====== MODAL EDITAR ======
-let editingId = null;
-
-function abrirEditar(id) {
-  const r = registros.find(x => String(x.id) === String(id));
-  if (!r) return;
-  editingId = id;
-  document.getElementById('editId').value = id;
-  document.getElementById('editArea').value = r.area;
-  document.getElementById('editOperario').value = r.operario;
-  document.getElementById('editHora').value = r.hora;
-  document.getElementById('editTemp').value = r.temperatura;
-  document.getElementById('editTurno').value = r.turno || calcularTurno(r.hora);
-  document.getElementById('editObs').value = r.observaciones || '';
-  document.getElementById('modalOverlay').classList.add('open');
-}
-
-function cerrarModal(e) {
-  if (e && e.target !== document.getElementById('modalOverlay')) return;
-  document.getElementById('modalOverlay').classList.remove('open');
-  editingId = null;
-}
-
-async function guardarEdicion() {
-  if (editingId === null) return;
-  const idx = registros.findIndex(x => String(x.id) === String(editingId));
-  if (idx === -1) return;
-  const area  = document.getElementById('editArea').value;
-  const temp  = parseFloat(document.getElementById('editTemp').value);
-  const hora  = document.getElementById('editHora').value;
-  const turno = document.getElementById('editTurno').value;
-  const obs   = document.getElementById('editObs').value;
-  const op    = document.getElementById('editOperario').value;
-  if (!area || isNaN(temp) || !hora) { showToast('❌', 'Campos incompletos', 'Completa área, temperatura y hora'); return; }
-  const estado = getEstado(area, temp);
-  registros[idx] = { ...registros[idx], area, temperatura: temp, hora, turno, observaciones: obs.trim()||null, operario: op, estado };
-  localStorage.setItem('temp_registros', JSON.stringify(registros));
-
-  // Actualizar en Supabase si tiene id UUID (registros enviados al servidor)
-  if (config.sbUrl && config.sbKey && registros[idx].supabase_id) {
-    const payload = { area, temperatura: temp, hora, turno: turno||null, observaciones: obs.trim()||null, operario: op, estado };
-    fetch(`${config.sbUrl}/rest/v1/registros_temperatura?id=eq.${registros[idx].supabase_id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json', 'apikey': config.sbKey, 'Authorization': `Bearer ${config.sbKey}`, 'Prefer': 'return=minimal' },
-      body: JSON.stringify(payload)
-    });
-  }
-
-  document.getElementById('modalOverlay').classList.remove('open');
-  editingId = null;
-  await cargarRegistrosSupabase();
-  showToast('✅', 'Registro actualizado', `${area} · ${temp}°C · ${hora}`);
-}
-
-function confirmarEliminar(id) {
-  editingId = id;
-  const r = registros.find(x => String(x.id) === String(id));
-  if (!r) return;
-  // Open modal and scroll to delete button
-  abrirEditar(id);
-  setTimeout(() => document.querySelector('.btn-danger').focus(), 100);
-}
-
-async function eliminarRegistro() {
-  if (editingId === null) return;
-  const r = registros.find(x => String(x.id) === String(editingId));
-  // Eliminar de Supabase si aplica
-  if (r && config.sbUrl && config.sbKey && r.supabase_id) {
-    fetch(`${config.sbUrl}/rest/v1/registros_temperatura?id=eq.${r.supabase_id}`, {
-      method: 'DELETE',
-      headers: { 'apikey': config.sbKey, 'Authorization': `Bearer ${config.sbKey}` }
-    });
-  }
-  registros = registros.filter(x => String(x.id) !== String(editingId));
-  localStorage.setItem('temp_registros', JSON.stringify(registros));
-  document.getElementById('modalOverlay').classList.remove('open');
-  editingId = null;
-  await cargarRegistrosSupabase();
-  showToast('🗑', 'Registro eliminado', 'El registro fue borrado correctamente');
-}
-
-// ====== MODO CLARO/OSCURO ======
-function toggleTheme() {
-  const isLight = document.body.classList.toggle('light-mode');
-  const thumb = document.getElementById('switchThumb');
-  const label = document.getElementById('switchLabel');
-  if (isLight) {
-    thumb.textContent = '☀️';
-    label.textContent = 'Modo claro';
-  } else {
-    thumb.textContent = '🌙';
-    label.textContent = 'Modo oscuro';
-  }
-  localStorage.setItem('theme', isLight ? 'light' : 'dark');
-}
-
-// Restaurar tema guardado
-(function() {
-  const saved = localStorage.getItem('theme');
-  if (saved === 'light') {
-    document.body.classList.add('light-mode');
-    // Update switch after DOM loads
-    window.addEventListener('DOMContentLoaded', () => {
-      const thumb = document.getElementById('switchThumb');
-      const label = document.getElementById('switchLabel');
-      if (thumb) thumb.textContent = '☀️';
-      if (label) label.textContent = 'Modo claro';
-    });
-  }
-})();
-
-// ====== SQL COPY ======
-function copiarSQL() {
-  const sql = `CREATE TABLE registros_temperatura (
-  id            uuid             DEFAULT gen_random_uuid() PRIMARY KEY,
-  fecha         date             NOT NULL,
-  hora          time             NOT NULL,
-  area          varchar(100)     NOT NULL,
-  temperatura   numeric(5,1)     NOT NULL,
-  estado        varchar(20)      CHECK(estado IN ('OK','ALERTA','CRITICO')),
-  operario      varchar(100)     NOT NULL,
-  turno         varchar(50),
-  observaciones text,
-  created_at    timestamptz      DEFAULT now()
-);
-ALTER TABLE registros_temperatura ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "allow_all" ON registros_temperatura FOR ALL USING (true);`;
-  navigator.clipboard.writeText(sql).then(() => showToast('📋', 'SQL copiado', 'Pégalo en el editor SQL de Supabase'));
-}
-</script>
-
-<!-- MODAL EDITAR REGISTRO -->
-<div class="modal-overlay" id="modalOverlay" onclick="cerrarModal(event)">
-  <div class="modal">
-    <div class="modal-title">
-      <span>✏️ Editar registro</span>
-      <button class="modal-close" onclick="cerrarModal()">✕</button>
-    </div>
-    <input type="hidden" id="editId" />
-    <div class="form-grid three" style="margin-bottom:14px">
-      <div class="form-group">
-        <label>Área</label>
-        <select id="editArea">
-          <!-- Cámaras de Materia Prima -->
-          <option value="CAMARA DE MATERIA PRIMA">CAMARA DE MATERIA PRIMA</option>
-          <option value="TEMPERATURA DE PRODUCTO(MP)">TEMPERATURA DE PRODUCTO(MP)</option>
-          <option value="REEFER 1">REEFER 1</option>
-          <option value="REEFER 2">REEFER 2</option>
-          <option value="REEFER 3">REEFER 3</option>
-          <option value="REEFER 4">REEFER 4</option>
-          <option value="REEFER 5">REEFER 5</option>
-          <option value="REEFER 6">REEFER 6</option>
-          <option value="REEFER 7">REEFER 7</option>
-          <option value="REEFER 8">REEFER 8</option>
-          <option value="REEFER 9">REEFER 9</option>
-          <option value="REEFER 10">REEFER 10</option>
-          <!-- Sala de Proceso -->
-          <option value="ACONDICIONADO">ACONDICIONADO</option>
-          <option value="EMBANDEJADO">EMBANDEJADO</option>
-          <option value="LAVADO DE BANDEJAS">LAVADO DE BANDEJAS</option>
-          <option value="PRE ENFRIADO">PRE ENFRIADO</option>
-          <!-- Sala de Empaque -->
-          <option value="EMPAQUE">EMPAQUE</option>
-          <option value="TEMPERATURA PRODUCTO">TEMPERATURA PRODUCTO</option>
-          <option value="CAMARA DE PRODUCTO TERMINADO">CAMARA DE PRODUCTO TERMINADO</option>
-          <option value="DESPACHO">DESPACHO</option>
-        </select>
+// ================== IMPRIMIR ==================
+function imprimirTicket(r) {
+  const fecha = r.fecha ? new Date(r.fecha).toLocaleString('es-PE', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+  const printArea = document.getElementById('paliticket-print-area');
+  printArea.style.display = 'block';
+  printArea.innerHTML = `
+    <div class="paliticket-preview" id="ticket-to-print">
+      <div class="pali-header">
+        <h2>🍍 FRUTOS TROPICALES PERÚ EXPORT SAC</h2>
+        <p>PALÍTICKET DE INGRESO — MATERIA PRIMA</p>
       </div>
-      <div class="form-group">
-        <label>Supervisor</label>
-        <select id="editOperario">
-          <option>LUIS APONTE</option>
-          <option>MAYDA APONTE</option>
-          <option>SHEYLA CAMONES</option>
-          <option>JHONY PAJUELO</option>
-          <option>BLANCA MALVACEDA</option>
-          <option>CHRISTY JIMENEZ</option>
-        </select>
+      <div class="pali-number">${r.paliticket}</div>
+      <div class="pali-rows">
+        <div class="pali-row"><span class="pk">Fecha:</span><span class="pv">${fecha}</span></div>
+        <div class="pali-row"><span class="pk">Carro/Placa:</span><span class="pv">${r.carro || '—'}</span></div>
+        <div class="pali-row"><span class="pk">Fruta:</span><span class="pv">${r.fruta}</span></div>
+        <div class="pali-row"><span class="pk">Variedad:</span><span class="pv">${r.variedad || '—'}</span></div>
+        <div class="pali-row"><span class="pk">Kg Bruto:</span><span class="pv">${r.kgBruto?.toFixed(2) || '—'} kg</span></div>
+        <div class="pali-row"><span class="pk">Kg Neto:</span><span class="pv"><strong>${r.kgNeto?.toFixed(2) || '—'} kg</strong></span></div>
+        <div class="pali-row"><span class="pk">Jabas/Cajas:</span><span class="pv">${r.jabas || '—'}</span></div>
+        <div class="pali-row"><span class="pk">Proveedor:</span><span class="pv">${r.proveedor || '—'}</span></div>
+        <div class="pali-row"><span class="pk">Estado:</span><span class="pv">${r.estado || '—'}</span></div>
+        <div class="pali-row"><span class="pk">Responsable:</span><span class="pv">${r.responsable || '—'}</span></div>
+        ${r.observaciones ? `<div class="pali-row"><span class="pk">Obs.:</span><span class="pv">${r.observaciones}</span></div>` : ''}
       </div>
-      <div class="form-group">
-        <label>Hora</label>
-        <input type="time" id="editHora" oninput="document.getElementById('editTurno').value = calcularTurno(this.value)" />
+      <div class="pali-barcode">
+        <svg id="barcode-svg"></svg>
       </div>
-    </div>
-    <div class="form-grid" style="margin-bottom:14px">
-      <div class="form-group">
-        <label>Temperatura (°C)</label>
-        <div class="temp-input-wrap">
-          <input type="number" id="editTemp" step="0.1" min="-50" max="50" />
-          <span class="temp-unit">°C</span>
+      <div class="pali-footer">FTP Export SAC — Sistema de Trazabilidad | ${new Date().toLocaleDateString('es-PE')}</div>
+    </div>`;
+
+  // Generate barcode
+  try {
+    JsBarcode("#barcode-svg", r.paliticket, {
+      format: "CODE128", width: 2, height: 50,
+      displayValue: true, fontSize: 12, margin: 4
+    });
+  } catch(e) {}
+
+  window.print();
+  setTimeout(() => { printArea.style.display = 'none'; }, 1000);
+}
+
+function buscarParaImprimir() {
+  const q = document.getElementById('print-search').value.trim();
+  const db = getDB();
+  const found = db.find(r => r.paliticket === q || r.paliticket.includes(q));
+  const el = document.getElementById('print-result');
+  if (!found) {
+    el.innerHTML = `<div class="alert alert-error">❌ No se encontró el palíticket "${q}"</div>`;
+    return;
+  }
+  const fecha = found.fecha ? new Date(found.fecha).toLocaleString('es-PE', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+  el.innerHTML = `
+    <div style="display:flex; gap:20px; flex-wrap:wrap; align-items:flex-start;">
+      <div class="paliticket-preview" style="flex:1; min-width:280px;">
+        <div class="pali-header">
+          <h2>🍍 FRUTOS TROPICALES PERÚ EXPORT SAC</h2>
+          <p>PALÍTICKET DE INGRESO — MATERIA PRIMA</p>
         </div>
+        <div class="pali-number">${found.paliticket}</div>
+        <div class="pali-rows">
+          <div class="pali-row"><span class="pk">Fecha:</span><span class="pv">${fecha}</span></div>
+          <div class="pali-row"><span class="pk">Carro/Placa:</span><span class="pv">${found.carro || '—'}</span></div>
+          <div class="pali-row"><span class="pk">Fruta:</span><span class="pv">${found.fruta}</span></div>
+          <div class="pali-row"><span class="pk">Variedad:</span><span class="pv">${found.variedad || '—'}</span></div>
+          <div class="pali-row"><span class="pk">Kg Bruto:</span><span class="pv">${found.kgBruto?.toFixed(2) || '—'} kg</span></div>
+          <div class="pali-row"><span class="pk">Kg Neto:</span><span class="pv"><strong>${found.kgNeto?.toFixed(2) || '—'} kg</strong></span></div>
+          <div class="pali-row"><span class="pk">Jabas:</span><span class="pv">${found.jabas || '—'}</span></div>
+          <div class="pali-row"><span class="pk">Proveedor:</span><span class="pv">${found.proveedor || '—'}</span></div>
+          <div class="pali-row"><span class="pk">Estado:</span><span class="pv">${found.estado || '—'}</span></div>
+          <div class="pali-row"><span class="pk">Responsable:</span><span class="pv">${found.responsable || '—'}</span></div>
+        </div>
+        <div class="pali-barcode"><svg id="barcode-preview"></svg></div>
+        <div class="pali-footer">FTP Export SAC — ${new Date().toLocaleDateString('es-PE')}</div>
       </div>
-      <div class="form-group">
-        <label>Turno (automático)</label>
-        <input type="text" id="editTurno" readonly style="background:var(--surface2);color:var(--accent);font-weight:600;cursor:default;" />
-      </div>
     </div>
-    <div class="form-group">
-      <label>Observaciones</label>
-      <textarea id="editObs" rows="3"></textarea>
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-danger" onclick="eliminarRegistro()">🗑 Eliminar</button>
-      <button class="btn btn-save" onclick="guardarEdicion()">✓ Guardar cambios</button>
-    </div>
-  </div>
-</div>
+    <div class="flex-row" style="margin-top:16px;">
+      <button class="btn btn-amarillo" onclick='imprimirTicket(${JSON.stringify(found).replace(/'/g,"&#39;")})'>🖨️ Imprimir este Ticket</button>
+      <button class="btn btn-primary" onclick='abrirModal(${JSON.stringify(found).replace(/'/g,"&#39;")})'>👁️ Ver Detalle Completo</button>
+    </div>`;
+  try {
+    JsBarcode("#barcode-preview", found.paliticket, {
+      format: "CODE128", width: 2, height: 45,
+      displayValue: true, fontSize: 11, margin: 4
+    });
+  } catch(e) {}
+}
+
+// ================== STATS ==================
+function actualizarStats() {
+  const db = getDB();
+  document.getElementById('stat-total').textContent = `Total: ${db.length} registro${db.length !== 1 ? 's' : ''}`;
+  const hoy = new Date().toDateString();
+  const hoyCount = db.filter(r => r.registradoEn && new Date(r.registradoEn).toDateString() === hoy).length;
+  document.getElementById('stat-hoy').textContent = `Hoy: ${hoyCount}`;
+}
+
+// ================== UTILS ==================
+function showAlert(containerId, msg, type) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  el.innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
+  setTimeout(() => { el.innerHTML = ''; }, 5000);
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(`panel-${tab}`).classList.add('active');
+  document.getElementById(`tab-${tab}`).classList.add('active');
+
+  if (tab === 'registros') { filtrarRegistros(); actualizarFiltroFrutas(); }
+  if (tab !== 'scan') stopScanner();
+}
+
+// ================== INIT ==================
+actualizarStats();
+actualizarFiltroFrutas();
+
+// Set today's date on form load
+window.addEventListener('load', () => {
+  const now = new Date();
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  document.getElementById('f-fecha').value = now.toISOString().slice(0,16);
+});
+</script>
 </body>
 </html>
